@@ -73,6 +73,20 @@ const Config = {
       intro:      'CEO Maxwell enters the boardroom!\nProve your business acumen!',
       defeat:     'Poor ROI!\nCEO Maxwell fainted!',
     },
+    {
+      id:        'history',
+      name:      'General Napoleon',
+      type:      'HISTORY',
+      difficulty: 'medium',
+      maxHp:     110,
+      dmgDealt:  18,
+      dmgTaken:  22,
+      emoji:     '🗡️'
+      , typeColor: '#f87171',
+      typeBg:    'rgba(248,113,113,0.25)',
+      intro:     'General Napoleon representing France comes in!\nHow well do you know history?',
+      defeat:    'Lost to the english!\nGeneral Napoleon fainted!',
+    }
   ],
 
   /** Player starting stats */

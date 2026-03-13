@@ -1,11 +1,5 @@
 /* ═══════════════════════════════════════════
-   game.js — Game logic & orchestration
-   Reads from Config and State.
-   Calls AI for questions.
-   Calls UI for all rendering.
-   Never touches the DOM directly.
-   Depends on: config.js, state.js, ai.js,
-               ui.js, utils.js
+   There is a lot of things going on in this file
    ═══════════════════════════════════════════ */
 
 const Game = {
@@ -130,7 +124,7 @@ const Game = {
     const boss     = State.currentBoss;
     State.playerHp = Math.max(0, State.playerHp - boss.dmgDealt);
 
-    await UI.typewrite(`✗ Wrong!\nAnswer: ${correct}\nYou took ${boss.dmgDealt} damage!`);
+    await UI.typewrite(`✗ Wrong! Fucking \nAnswer: ${correct}\nYou took ${boss.dmgDealt} damage!`);
     UI.animatePlayerHit();
     UI.animateHpBar('playerHpFill', 'playerHpNumbers', State.playerHp, Config.player.maxHp);
 
@@ -156,7 +150,7 @@ const Game = {
     State.bossIndex++;
 
     if (State.bossIndex < Config.bosses.length) {
-      await UI.typewrite('A new challenger approaches...');
+      await UI.typewrite('A new challenger is cominggggg !!!');
       await sleep(1400);
       this._startBoss();
     } else {
@@ -166,7 +160,7 @@ const Game = {
 
   async _playerFainted() {
     UI.hideAnswers();
-    await UI.typewrite('You fainted...\nBetter luck next time!');
+    await UI.typewrite('You fainted...\n Next time just study mate!');
     await sleep(1800);
     UI.showOverlay('💀 YOU FAINTED', 'Your brain needs more training!');
   },
