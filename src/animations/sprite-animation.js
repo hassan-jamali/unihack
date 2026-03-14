@@ -2,6 +2,18 @@
    sprite-animation.js — Sprite sheet animation system
    ═══════════════════════════════════════════ */
 
+/**
+ * Combat Sound Effects System
+ * Provides randomized SFX for various combat animations
+ */
+import { playBossAttackSFX, playBossIdleSFX, playPlayerAttackSFX, playSound } from './sound-effects.js';
+
+// Make sound functions globally available
+window.playBossAttackSFX = playBossAttackSFX;
+window.playBossIdleSFX = playBossIdleSFX;
+window.playPlayerAttackSFX = playPlayerAttackSFX;
+window.playSound = playSound;
+
 // Store active animations
 const activeAnimations = new Map();
 
@@ -44,6 +56,10 @@ function animate(targetElementId) {
           
           // Return to original idle animation
           const orig = anim.originalAnimation;
+          // randomly plays playBossIdleSFX(); with a 50% of playing it or not
+          if (Math.random() < 0.5) {
+            playBossIdleSFX();
+          }
           changeAnimation(targetElementId, orig.image.src, orig.frameCount, orig.frameWidth, orig.frameHeight, orig.frameDuration, false);
           return;
         }
@@ -291,6 +307,8 @@ function changeAnimation(targetElementId, imageSrc, frameCount, frameWidth, fram
   newImg.src = imageSrc;
 }
 
+// ======================== Boss Animation Functions ========================
+
 /**
  * Plays a temporary animation and returns to idle
  * @param {string} targetElementId - ID of the target element
@@ -327,9 +345,196 @@ function playTemporaryAnimation(targetElementId, imageSrc, frameCount, frameWidt
 // Make the new functions globally available
 window.changeAnimation = changeAnimation;
 window.playTemporaryAnimation = playTemporaryAnimation;
+window.getAnimationData = getAnimationData;
 
 // Make the main function globally available for HTML onclick handlers
 window.playSpriteAnimation = playSpriteAnimation;
+
+// Boss animation functions
+/**
+ * Initialize boss idle animation
+ */
+function initBossIdleAnimation() {
+  changeAnimation('bossSprite', 'src/assets/bosses/idle.png', 4, 81, 71, 120, false, 2, false);
+  // Flip boss sprite to face player with multiple retries
+  setTimeout(() => {
+    flipBossSprite();
+  }, 50);
+
+  // if 100ms passed, reproduce playBossIdleSFX() 
+  setTimeout(() => {
+    playBossIdleSFX();
+  }, 100);
+}
+
+/**
+ * Play boss attack animation
+ */
+function playBossAttackAnimation() {
+  changeAnimation('bossSprite', 'src/assets/bosses/attack.png', 8, 81, 71, 100, true, 2, false);
+  // Play projectile animation after attack starts
+  setTimeout(() => {
+    playBossProjectileAnimation();
+  }, 200); // Delay to sync with attack animation
+}
+
+/**
+ * Play boss hurt animation
+ */
+function playBossHurtAnimation() {
+  changeAnimation('bossSprite', 'src/assets/bosses/hurt.png', 4, 81, 71, 150, true, 2, false);
+}
+
+/**
+ * Play boss death animation
+ */
+function playBossDeathAnimation() {
+  changeAnimation('bossSprite', 'src/assets/bosses/death.png', 7, 81, 71, 120, true, 2, false);
+}
+
+/**
+ * Play projectile animation from boss to player
+ */
+function playBossProjectileAnimation() {
+  // Create projectile element if it doesn't exist
+  let projectile = document.getElementById('bossProjectile');
+  if (!projectile) {
+    projectile = document.createElement('div');
+    projectile.id = 'bossProjectile';
+    projectile.style.position = 'absolute';
+    projectile.style.width = '80px'; // 2x bigger (was 32px)
+    projectile.style.height = '80px'; // 2x bigger (was 32px)
+    projectile.style.zIndex = '1000';
+    projectile.style.transition = 'transform 0.3s linear'; // Faster for diagonal movement
+    projectile.style.backgroundImage = 'url(src/assets/bosses/projectile.png)';
+    projectile.style.backgroundSize = 'contain';
+    projectile.style.backgroundRepeat = 'no-repeat';
+    projectile.style.backgroundPosition = 'center';
+    
+    // Add to battle screen
+    const battleScreen = document.getElementById('battle-screen');
+    if (battleScreen) {
+      battleScreen.appendChild(projectile);
+      console.log('Projectile created and added to battle screen');
+    }
+  }
+  
+  // Get both boss and character positions dynamically
+  setTimeout(() => {
+    const bossElement = document.getElementById('bossSprite');
+    const playerElement = document.getElementById('playerSprite');
+    
+    if (bossElement && playerElement) {
+      const battleRect = document.getElementById('battle-screen').getBoundingClientRect();
+      
+      // Get boss position (center/mouth area)
+      const bossRect = bossElement.getBoundingClientRect();
+      const bossCenterX = bossRect.left - battleRect.left + (bossRect.width / 2);
+      const bossCenterY = bossRect.top - battleRect.top + (bossRect.height / 2);
+      
+      // Get character position (center)
+      const playerRect = playerElement.getBoundingClientRect();
+      const playerCenterX = playerRect.left - battleRect.left + (playerRect.width / 2) -100;
+      const playerCenterY = playerRect.top - battleRect.top + (playerRect.height / 2) - 30;
+      
+      // Calculate trajectory from boss to character
+      const deltaX = playerCenterX - bossCenterX;
+      const deltaY = playerCenterY - bossCenterY;
+      
+      // Calculate rotation angle based on trajectory (in degrees)
+      const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+      
+      // Position projectile at boss center initially
+      projectile.style.left = (bossCenterX - 40) + 'px'; // Center the 80px projectile
+      projectile.style.top = (bossCenterY - 40) + 'px';  // Center the 80px projectile
+      
+      // Animate projectile directly to character center with dynamic rotation
+      projectile.style.transform = `translateX(${deltaX}px) translateY(${deltaY}px) rotate(${angle-200}deg)`;
+      console.log(`Projectile from boss (${bossCenterX}, ${bossCenterY}) to character (${playerCenterX}, ${playerCenterY}) at angle ${angle.toFixed(1)}°`);
+      
+      // Play hit effect on character when projectile arrives
+      setTimeout(() => {
+        playRedHitEffect(playerCenterX, playerCenterY); // Use actual character position
+      }, 200); // Same time as projectile travel
+    }
+  }, 100);
+  
+  // Remove projectile after animation
+  setTimeout(() => {
+    if (projectile && projectile.parentNode) {
+      projectile.parentNode.removeChild(projectile);
+      console.log('Projectile removed');
+    }
+  }, 300); // Adjusted timing for direct travel
+}
+
+/**
+ * Apply horizontal flip to boss sprite element with retry mechanism
+ */
+function flipBossSprite() {
+  const bossElement = document.getElementById('bossSprite');
+  if (bossElement) {
+    bossElement.style.transform = 'scaleX(-1)';
+    
+    // Ensure flip is applied by checking and retrying
+    const checkFlip = () => {
+      const currentTransform = bossElement.style.transform;
+      if (!currentTransform || !currentTransform.includes('scaleX(-1)')) {
+        bossElement.style.transform = 'scaleX(-1)';
+        console.log('Boss sprite flipped to face player');
+      }
+    };
+    
+    // Check immediately and retry if needed
+    checkFlip();
+    
+    // Also check after a short delay to ensure it sticks
+    setTimeout(checkFlip, 100);
+    setTimeout(checkFlip, 300);
+  }
+}
+
+
+/**
+ * Play red hit effect animation
+ */
+function playRedHitEffect(x, y) {
+  // Create hit effect element
+  const hitEffect = document.createElement('div');
+  hitEffect.id = 'redHitEffect';
+  hitEffect.style.position = 'absolute';
+  hitEffect.style.left = x + 'px';
+  hitEffect.style.top = y + 'px';
+  hitEffect.style.zIndex = '1001';
+  hitEffect.style.pointerEvents = 'none';
+  
+  // Add to battle screen
+  const battleScreen = document.getElementById('battle-screen');
+  if (battleScreen) {
+    battleScreen.appendChild(hitEffect);
+    
+    // Play sprite animation
+    playBossAttackSFX();
+    playSpriteAnimation('src/assets/combat_effects/hit_effects/red_hit_eff.png', 7, 48, 48, 'redHitEffect', 80, true);
+    
+    // Remove after animation completes
+    setTimeout(() => {
+      if (hitEffect && hitEffect.parentNode) {
+        hitEffect.parentNode.removeChild(hitEffect);
+      }
+    }, 560); // 7 frames × 80ms = 560ms
+  }
+}
+
+// Make hit effect function globally available
+// Make boss animation functions globally available
+window.initBossIdleAnimation = initBossIdleAnimation;
+window.playBossAttackAnimation = playBossAttackAnimation;
+window.playBossHurtAnimation = playBossHurtAnimation;
+window.playBossDeathAnimation = playBossDeathAnimation;
+window.playBossProjectileAnimation = playBossProjectileAnimation;
+window.flipBossSprite = flipBossSprite;
+window.playRedHitEffect = playRedHitEffect;
 
 // Export helper functions for future extension
 export { playSpriteAnimation, drawFrame, getAnimationData, removeAnimation, activeAnimations };

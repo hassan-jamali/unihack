@@ -6,6 +6,8 @@ import { AI } from '../ai/ai.js';
 import { Presets } from './presets.js';
 import { Shop } from '../ui/shop.js';
 import { sleep, triggerAnim, cheat, shuffle } from '../core/utils.js';
+import { playBossAttackSFX, playBossIdleSFX, playPlayerAttackSFX, playSound } from '../animations/sound-effects.js';
+
 
 window.startGame = startGame;
 window.restartGame = restartGame;
@@ -100,6 +102,10 @@ const Game = {
     // Play attack animation on correct answer
     if (typeof changeAnimation === 'function') {
       changeAnimation('playerSprite', 'src/assets/player/attack_1.png', 7, 96, 96, 80, true, 2, true);
+      setTimeout(() => {
+        playPlayerAttackSFX();
+      }, 300);
+      playBossHurtAnimation();
     }
     
     await sleep(300);
@@ -115,10 +121,16 @@ const Game = {
     Player.awardCoins(coinGain);
 
     await UI.typewrite(`✓ Correct! +${coinGain}🪙\n${boss.name} took ${dmg} damage!`);
-    UI.animateBossHit();
-    UI.animateHpBar('bossHpFill', 'bossHpNumbers', State.bossHp, boss.maxHp);
-    UI.updateHUD();
-
+    
+    
+    
+    // Apply damage after delay
+    setTimeout(() => {
+      UI.animateBossHit();
+      UI.animateHpBar('bossHpFill', 'bossHpNumbers', State.bossHp, boss.maxHp);
+      UI.updateHUD();
+    });
+    
     await sleep(1600);
 
     if (State.bossHp <= 0) await this._bossFainted();
@@ -129,10 +141,21 @@ const Game = {
     UI.markAnswerWrong(idx);
     UI.revealCorrectAnswer(State.shuffledAnswers, correct);
     
+
+    // Play boss attack animation when player fails
+    if (typeof playBossAttackAnimation === 'function') {
+      playBossAttackAnimation();
+    }
+    
     // Play hurt animation on wrong answer
     if (typeof changeAnimation === 'function') {
-      changeAnimation('playerSprite', 'src/assets/player/hurt.png', 4, 96, 96, 150, true, 2);
+      setTimeout(() => {
+        changeAnimation('playerSprite', 'src/assets/player/hurt.png', 4, 96, 96, 150, true, 2);
+        playRedHitEffect(200, 470);
+      }, 700);
     }
+    
+    
     
     await sleep(300);
 
@@ -174,9 +197,16 @@ const Game = {
 
   async _bossFainted() {
     UI.hideAnswers();
+    
+    // Play boss death animation when defeated
+    if (typeof playBossDeathAnimation === 'function') {
+      playBossDeathAnimation();
+    }
+    
     UI.animateBossFaint();
     await sleep(300);
     await UI.typewrite(State.currentBoss.defeat || `${State.currentBoss.name} fainted!`);
+    await sleep(1800);
 
     State.runBossesDefeated++;
 
