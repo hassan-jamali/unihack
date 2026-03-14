@@ -96,6 +96,12 @@ const Game = {
 
   async _handleCorrect(idx) {
     UI.markAnswerCorrect(idx);
+    
+    // Play attack animation on correct answer
+    if (typeof changeAnimation === 'function') {
+      changeAnimation('playerSprite', 'src/assets/player/attack_1.png', 7, 96, 96, 80, true, 2, true);
+    }
+    
     await sleep(300);
 
     State.runCorrectAnswers++;
@@ -122,6 +128,12 @@ const Game = {
   async _handleWrong(idx, correct) {
     UI.markAnswerWrong(idx);
     UI.revealCorrectAnswer(State.shuffledAnswers, correct);
+    
+    // Play hurt animation on wrong answer
+    if (typeof changeAnimation === 'function') {
+      changeAnimation('playerSprite', 'src/assets/player/hurt.png', 4, 96, 96, 150, true, 2);
+    }
+    
     await sleep(300);
 
     State.runWrongAnswers++;
@@ -140,6 +152,7 @@ const Game = {
         await UI.typewrite(`✗ Wrong! Shield absorbed ${absorbed}!\nAnswer: ${correct}`);
         UI.animateHpBar('playerHpFill', 'playerHpNumbers', State.playerHp, State.maxPlayerHp);
         await sleep(2000);
+        
         if (State.playerHp <= 0) await this._playerFainted();
         else { UI.hideAnswers(); this._askQuestion(); }
         return;
@@ -148,7 +161,6 @@ const Game = {
 
     State.playerHp = Math.max(0, State.playerHp - dmgTaken);
     await UI.typewrite(`✗ Wrong!\nAnswer: ${correct}\nYou took ${dmgTaken} damage!`);
-    UI.animatePlayerHit();
     UI.animateHpBar('playerHpFill', 'playerHpNumbers', State.playerHp, State.maxPlayerHp);
     UI.updateHUD();
 

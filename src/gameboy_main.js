@@ -35,4 +35,30 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.renderBossCards();
   UI.updateHUD();
   document.getElementById('playerHudName').textContent = Config.player.name;
+  
+  // Initialize idle animation for player sprite
+  initIdleAnimation();
 });
+
+// Initialize idle animation when battle screen is shown
+function initIdleAnimation() {
+  // Start idle animation when battle screen becomes active
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        const battleScreen = document.getElementById('battle-screen');
+        if (battleScreen && battleScreen.classList.contains('active')) {
+          // Start idle animation
+          setTimeout(() => {
+            playSpriteAnimation('src/assets/player/idle.png', 10, 96, 96, 'playerSprite');
+          }, 100);
+        }
+      }
+    });
+  });
+  
+  const battleScreen = document.getElementById('battle-screen');
+  if (battleScreen) {
+    observer.observe(battleScreen, { attributes: true });
+  }
+}
