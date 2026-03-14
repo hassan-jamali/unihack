@@ -100,14 +100,9 @@ function mountMPGame() {
   _listenSocket();
 
   if (MP.isHost) {
-    // Strip avatarData before sending over WS — they're already in MP.players locally
-    const safeBosses = MP.bosses.map(b => {
-      const { image, ...rest } = b;    // keep image URL (small), not base64
-      return { ...rest, image: image || '' };
-    });
-    _send({ type: 'MP_BOSS_START', bossIndex: 0, bosses: safeBosses });
-    _startBoss(0);
-  }
+  _send({ type: 'MP_BOSS_START', bossIndex: 0, bosses: MP.bosses }); // ← change this line only
+  _startBoss(0);
+}
   // Guests wait for MP_BOSS_START via socket
 }
 
@@ -588,14 +583,18 @@ function _listenSocket() {
     switch (msg.type) {
 
       case 'MP_BOSS_START':
-        // Everyone (including host) runs _startBoss when they see this
-        // Host sends it to itself too via the RELAY echo
-        // But we only want guests to react to it (host already called _startBoss locally)
-        if (!MP.isHost) {
-          if (msg.bosses?.length) MP.bosses = msg.bosses;
-          _startBoss(msg.bossIndex);
-        }
-        break;
+  if (!MP.isHost) {
+    if (msg.bosses?.length) {
+      const cfg = _loadConfig();
+      const localBosses = [...Presets, ...(cfg.bosses || [])];
+      MP.bosses = msg.bosses.map(b => {
+        const local = localBosses.find(l => l.id === b.id);
+        return local ? { ...b, image: local.image || b.image, emoji: local.emoji || b.emoji } : b;
+      });
+    }
+    _startBoss(msg.bossIndex);
+  }
+  break;
 
       case 'MP_QUESTION':
         // Everyone shows the question (host sent it to all via RELAY, incl. itself)
