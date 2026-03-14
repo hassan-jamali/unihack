@@ -6,15 +6,13 @@ const UI = {
 
   // ── Screens ──────────────────────────────────────────
 
-  showBattleScreen() {
-    const title  = document.getElementById('title-screen');
-    const battle = document.getElementById('battle-screen');
-    title.style.display  = 'none';
-    battle.style.display = 'flex';
-    battle.style.flexDirection = 'column';
-    battle.style.width  = '100%';
-    battle.style.height = '100%';
+  showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   },
+
+  showBattleScreen() { this.showScreen('battle-screen'); },
+  showTitleScreen()  { this.showScreen('title-screen');  },
 
   // ── Arena ────────────────────────────────────────────
 
@@ -22,21 +20,21 @@ const UI = {
     document.getElementById('typeOverlay').style.background = color;
   },
 
-  setBossSprite(emoji) {
+  setBossSprite(boss) {
     const el = document.getElementById('bossSprite');
     el.style.opacity   = '1';
     el.style.transform = '';
-    el.textContent     = emoji;
+    if (boss.image) {
+      el.innerHTML = `<img src="${boss.image}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.6))">`;
+    } else {
+      el.innerHTML = boss.emoji || '❓';
+    }
     return el;
   },
 
-  animateBossEntry(el) {
-    triggerAnim(el, 'anim-slide', 600);
-  },
-
-  animateBossHit() {
-    triggerAnim(document.getElementById('bossSprite'), 'anim-boss-hit', 500);
-  },
+  animateBossEntry(el) { triggerAnim(el, 'anim-slide', 600); },
+  animateBossHit()     { triggerAnim(document.getElementById('bossSprite'), 'anim-boss-hit', 500); },
+  animatePlayerHit()   { triggerAnim(document.getElementById('playerSprite'), 'anim-shake', 400); },
 
   animateBossFaint() {
     document.getElementById('bossSprite').classList.add('anim-faint');
@@ -47,10 +45,6 @@ const UI = {
     el.classList.remove('anim-faint');
     el.style.opacity   = '1';
     el.style.transform = '';
-  },
-
-  animatePlayerHit() {
-    triggerAnim(document.getElementById('playerSprite'), 'anim-shake', 400);
   },
 
   // ── HUD ──────────────────────────────────────────────
@@ -130,7 +124,7 @@ const UI = {
   showAnswers(answers) {
     document.getElementById('answersArea').classList.add('visible');
     answers.forEach((text, i) => {
-      const btn       = document.getElementById('btn' + i);
+      const btn     = document.getElementById('btn' + i);
       btn.textContent = text;
       btn.disabled    = false;
       btn.className   = 'answer-btn';
@@ -142,18 +136,12 @@ const UI = {
   },
 
   disableAnswers() {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++)
       document.getElementById('btn' + i).disabled = true;
-    }
   },
 
-  markAnswerCorrect(idx) {
-    document.getElementById('btn' + idx).classList.add('correct');
-  },
-
-  markAnswerWrong(idx) {
-    document.getElementById('btn' + idx).classList.add('wrong');
-  },
+  markAnswerCorrect(idx) { document.getElementById('btn' + idx).classList.add('correct'); },
+  markAnswerWrong(idx)   { document.getElementById('btn' + idx).classList.add('wrong'); },
 
   revealCorrectAnswer(shuffled, correctText) {
     shuffled.forEach((answer, i) => {
@@ -171,5 +159,75 @@ const UI = {
 
   hideOverlay() {
     document.getElementById('battleOverlay').classList.remove('visible');
+  },
+
+  // ── Title screen boss cards ───────────────────────────
+
+  renderBossCards() {
+    const container = document.getElementById('bossCardsContainer');
+    container.innerHTML = '';
+
+    if (Config.bosses.length === 0) {
+      container.innerHTML = `<div class="boss-empty-state">No bosses yet.<br>Add one in ⚙ Config!</div>`;
+      document.getElementById('selectedBossIndex').value = 'all';
+      return;
+    }
+
+    Config.bosses.forEach((boss, i) => {
+      const hpPips = Array.from({ length: Math.ceil(boss.maxHp / 25) }, () =>
+        `<div class="hp-pip" style="background:${boss.typeColor || '#aaa'}"></div>`
+      ).join('');
+
+      const iconHtml = boss.image
+        ? `<img class="boss-icon" src="${boss.image}" alt="${boss.name}">`
+        : `<span class="boss-icon">${boss.emoji || '❓'}</span>`;
+
+      const card = document.createElement('div');
+      card.className = 'boss-card';
+      card.style.borderColor = boss.typeColor || '#aaa';
+      card.dataset.index = i;
+      card.innerHTML = `
+        ${iconHtml}
+        <div class="boss-card-name">${boss.name.replace(' ', '<br>')}</div>
+        <div class="boss-type" style="background:${boss.typeColor || '#aaa'}">${boss.type}</div>
+        <div class="boss-card-hp">${hpPips}</div>
+        <div class="boss-card-diff">${boss.difficulty || 'medium'}</div>
+      `;
+      card.addEventListener('click', () => this._selectBoss(card, i));
+      container.appendChild(card);
+    });
+
+    /* "All bosses" card */
+    const allCard = document.createElement('div');
+    allCard.className = 'boss-card boss-card-all selected';
+    allCard.dataset.index = 'all';
+    allCard.innerHTML = `
+      <span class="boss-icon">⚡</span>
+      <div class="boss-card-name">All<br>Bosses</div>
+      <div class="boss-type" style="background:#e94560;color:#fff">FULL RUN</div>
+      <div class="boss-card-hp">
+        ${Config.bosses.map(() => `<div class="hp-pip" style="background:#e94560"></div>`).join('')}
+      </div>
+      <div class="boss-card-diff">marathon</div>
+    `;
+    allCard.addEventListener('click', () => this._selectBoss(allCard, 'all'));
+    container.appendChild(allCard);
+
+    document.getElementById('selectedBossIndex').value = 'all';
+  },
+
+  _selectBoss(card, index) {
+    document.querySelectorAll('.boss-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('selectedBossIndex').value = index;
+  },
+
+  getSelectedBosses() {
+    const val = document.getElementById('selectedBossIndex').value;
+    if (val === 'all') return [...Config.bosses];
+    const idx = parseInt(val);
+    const boss = Config.bosses[idx];
+    if (!boss) return [...Config.bosses]; // fallback to all if something went wrong
+    return [boss];
   },
 };

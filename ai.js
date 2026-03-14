@@ -1,15 +1,16 @@
 /* ═══════════════════════════════════════════
    ai.js — Question generation via Google Gemini API
-   The only file that calls fetch().
    Falls back to hardcoded questions on error.
-   Depends on: config.js, state.js, utils.js
-
-   Expects Config.geminiApiKey to be set in config.js
    ═══════════════════════════════════════════ */
 
 const AI = {
 
   async fetchQuestions(boss) {
+    /* Custom questions (from editor) — use them directly, no API call */
+    if (boss._customQuestions && boss._customQuestions.length > 0) {
+      return shuffle([...boss._customQuestions]);
+    }
+
     this._startLoader(boss.name);
     try {
       const rawText   = await this._callAPI(boss);
@@ -46,10 +47,7 @@ Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences.
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature:     0.7,
-          maxOutputTokens: 8192,
-        },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
       }),
     });
 
@@ -59,15 +57,11 @@ Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences.
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log('Gemini raw response:', JSON.stringify(data, null, 2));
-
+    const data    = await response.json();
     const rawText = data.candidates?.[0]?.content?.parts
       ?.filter(p => p.text)
       ?.map(p => p.text)
       ?.join('');
-
-    console.log('Extracted text:', rawText);
 
     if (!rawText) throw new Error('Empty response from Gemini API');
     return rawText;
@@ -78,10 +72,8 @@ Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences.
     if (!match) throw new Error('No JSON array found in response');
 
     const questions = JSON.parse(match[0]);
-
-    if (!Array.isArray(questions) || questions.length === 0) {
+    if (!Array.isArray(questions) || questions.length === 0)
       throw new Error('Empty or invalid response from API');
-    }
 
     const valid = questions.filter(q =>
       typeof q.q === 'string' && q.q.length > 0 &&
@@ -153,6 +145,7 @@ Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences.
         { q: 'Ancient wonder still standing?',     a: 'Great Pyramid',     w: ['Colossus of Rhodes', 'Lighthouse of Alexandria', 'Hanging Gardens'] },
       ],
     };
-    return questions[type] ?? questions.MATHS;
+    /* If boss has a custom type not in fallback, fall back to MATHS */
+    return questions[type] ?? questions[Object.keys(questions)[0]];
   },
 };
