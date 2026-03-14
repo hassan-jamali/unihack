@@ -35,7 +35,33 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize responsive scroll arrows for normal mode
   initResponsiveScrollArrows();
+  
+  // Initialize idle animation for player sprite
+  initIdleAnimation();
 });
+
+// Initialize idle animation when battle screen is shown
+function initIdleAnimation() {
+  // Start idle animation when battle screen becomes active
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        const battleScreen = document.getElementById('battle-screen');
+        if (battleScreen && battleScreen.classList.contains('active')) {
+          // Start idle animation
+          setTimeout(() => {
+            playSpriteAnimation('src/assets/player/idle.png', 10, 96, 96, 'playerSprite');
+          }, 1000);
+        }
+      }
+    });
+  });
+  
+  const battleScreen = document.getElementById('battle-screen');
+  if (battleScreen) {
+    observer.observe(battleScreen, { attributes: true });
+  }
+}
 
 // Scroll functionality for normal mode
 function scrollBosses(direction) {
