@@ -3,8 +3,6 @@
    Two modes: PDF upload or manual builder
    ═══════════════════════════════════════════ */
 
-import { preprocessPDF } from "./ai/rag.js";
-
 
 
 const Editor = {
@@ -79,7 +77,8 @@ const Editor = {
   // ══════════════════════════════════════════
 
   async processPdf() {
-
+    const { preprocessPDF } = await import("./ai/rag.js");
+      
     const boss = this._activeBoss;
     if (!boss) {
       this._pdfStatus('Please add a boss first in the Bosses tab.', 'error');
@@ -330,9 +329,10 @@ const Editor = {
   // ── Shared helpers ────────────────────────
 
   _mergeQuestions(boss, questions) {
-    if (!boss._customQuestions) boss._customQuestions = [];
-    boss._customQuestions.push(...questions);
-    _saveConfig(Config);
+  if (!boss._customQuestions) boss._customQuestions = [];
+  boss._customQuestions.push(...questions);
+  _saveConfig(Config);
+  this._refreshManualList(); // ← add this line
   },
 };
 
