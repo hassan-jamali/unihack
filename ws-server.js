@@ -1,16 +1,25 @@
 /* ═══════════════════════════════════════════
    ws-server.js — Brain Battle WebSocket Server
-   Run with: node ws-server.js
-   Requires: npm install ws
+   Uses HTTP + WS upgrade for Railway compatibility
    ═══════════════════════════════════════════ */
 
+import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
 
-const PORT = process.env.PORT || 8080;
-const rooms = new Map(); // roomCode → { players: Map<id, {ws, name, avatarIdx, isHost}> }
+const PORT  = process.env.PORT || 8080;
+const rooms = new Map();
 
-const wss = new WebSocketServer({ port: PORT });
-console.log(`🎮 Brain Battle WS server running on ws://localhost:${PORT}`);
+// Railway needs an HTTP server to health-check against
+const server = createServer((req, res) => {
+  res.writeHead(200);
+  res.end('Brain Battle WS Server OK');
+});
+
+const wss = new WebSocketServer({ server });
+
+server.listen(PORT, () => {
+  console.log(`🎮 Brain Battle WS server running on port ${PORT}`);
+});
 
 wss.on('connection', (ws) => {
   let playerRoom = null;
@@ -24,7 +33,6 @@ wss.on('connection', (ws) => {
     if (msg.type === 'JOIN_REQUEST') {
       const { code, id, name, avatarIdx } = msg;
 
-      // Create room if it doesn't exist yet (first joiner = host)
       if (!rooms.has(code)) {
         rooms.set(code, { players: new Map() });
       }
@@ -36,12 +44,11 @@ wss.on('connection', (ws) => {
       }
 
       const isHost = room.players.size === 0;
-      playerId  = id;
+      playerId   = id;
       playerRoom = code;
 
       room.players.set(id, { ws, name, avatarIdx, isHost });
 
-      // Tell everyone the updated room state
       broadcast(code, {
         type:    'ROOM_STATE',
         players: serializePlayers(code),
@@ -58,7 +65,6 @@ wss.on('connection', (ws) => {
       if (!room) return;
       const player = room.players.get(playerId);
       if (!player?.isHost) return;
-
       broadcast(playerRoom, { type: 'GAME_START' });
       console.log(`[${playerRoom}] Game started!`);
     }
@@ -87,7 +93,6 @@ wss.on('connection', (ws) => {
       rooms.delete(playerRoom);
       console.log(`[${playerRoom}] Room closed.`);
     } else {
-      // If host left, promote oldest remaining player
       if (player?.isHost) {
         const next = room.players.values().next().value;
         if (next) next.isHost = true;
