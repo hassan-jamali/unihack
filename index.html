@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
   <input type="hidden" id="selectedBossIndex" value="all">
@@ -27,16 +29,19 @@
       <div class="global-hud">
         <div class="hud-left">
           <span id="hudLevel" class="hud-level">LV.1</span>
-          <div class="hud-xp-track"><div class="hud-xp-fill" id="hudXpFill"></div></div>
+          <div class="hud-xp-track">
+            <div class="hud-xp-fill" id="hudXpFill"></div>
+          </div>
         </div>
         <div class="hud-right">
           <span id="hudCoins" class="hud-coins">🪙 0</span>
-          <button id="navShop"   class="nav-btn" onclick="openShop()"   style="display:none">Shop</button>
+          <button id="navShop" class="nav-btn" onclick="openShop()" style="display:none">Shop</button>
           <button id="navQuests" class="nav-btn" onclick="openQuests()" style="display:none">Quests</button>
         </div>
       </div>
 
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;z-index:1">
+      <div
+        style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;z-index:1">
         <div class="choose-label">Choose your challenger</div>
         <div class="boss-preview" id="bossCardsContainer"></div>
         <button class="btn-start" onclick="startGame()">▶ START GAME</button>
@@ -64,7 +69,9 @@
           </div>
           <div class="hp-label-row">
             <span class="hp-text">HP</span>
-            <div class="hp-track"><div class="hp-fill" id="bossHpFill"></div></div>
+            <div class="hp-track">
+              <div class="hp-fill" id="bossHpFill"></div>
+            </div>
           </div>
           <div class="hp-numbers" id="bossHpNumbers">100 / 100</div>
         </div>
@@ -78,7 +85,9 @@
           </div>
           <div class="hp-label-row">
             <span class="hp-text">HP</span>
-            <div class="hp-track"><div class="hp-fill" id="playerHpFill"></div></div>
+            <div class="hp-track">
+              <div class="hp-fill" id="playerHpFill"></div>
+            </div>
           </div>
           <div class="hp-numbers" id="playerHpNumbers">100 / 100</div>
         </div>
@@ -143,10 +152,10 @@
       </div>
 
       <div class="ed-tabs">
-        <button class="ed-tab active" data-tab="bosses"   onclick="edSwitchTab('bosses')">👤 Bosses</button>
-        <button class="ed-tab"        data-tab="pdf"      onclick="edSwitchTab('pdf')">📄 From PDF</button>
-        <button class="ed-tab"        data-tab="manual"   onclick="edSwitchTab('manual')">✏️ Manual</button>
-        <button class="ed-tab"        data-tab="settings" onclick="edSwitchTab('settings')">⚙ Settings</button>
+        <button class="ed-tab active" data-tab="bosses" onclick="edSwitchTab('bosses')">👤 Bosses</button>
+        <button class="ed-tab" data-tab="pdf" onclick="edSwitchTab('pdf')">📄 From PDF</button>
+        <button class="ed-tab" data-tab="manual" onclick="edSwitchTab('manual')">✏️ Manual</button>
+        <button class="ed-tab" data-tab="settings" onclick="edSwitchTab('settings')">⚙ Settings</button>
       </div>
 
       <!-- Bosses Panel -->
@@ -163,19 +172,21 @@
               <span id="bossImgLabel" style="font-size:5px">📷 Click to upload image</span>
               <input type="file" id="newBossImgInput" accept="image/*" onchange="previewBossImage(this)">
             </label>
-            <input type="text" id="newBossName"  class="ed-input" placeholder="Boss name">
-            <input type="text" id="newBossType"  class="ed-input" placeholder="Topic (e.g. BIOLOGY)">
+            <input type="text" id="newBossName" class="ed-input" placeholder="Boss name">
+            <input type="text" id="newBossType" class="ed-input" placeholder="Topic (e.g. BIOLOGY)">
             <div class="ed-row" style="gap:6px">
               <select id="newBossDiff" class="ed-input" style="flex:1">
                 <option value="easy">Easy</option>
                 <option value="medium" selected>Medium</option>
                 <option value="hard">Hard</option>
               </select>
-              <input type="number" id="newBossHp" class="ed-input ed-input-sm" value="100" min="20" max="500" title="Max HP">
+              <input type="number" id="newBossHp" class="ed-input ed-input-sm" value="100" min="20" max="500"
+                title="Max HP">
             </div>
             <div class="ed-row" style="gap:6px;align-items:center">
               <label class="ed-label" style="min-width:auto">Colour</label>
-              <input type="color" id="newBossColor" value="#60a5fa" style="width:36px;height:28px;border:2px solid #2a2a4a;background:#050510;cursor:pointer;border-radius:3px">
+              <input type="color" id="newBossColor" value="#60a5fa"
+                style="width:36px;height:28px;border:2px solid #2a2a4a;background:#050510;cursor:pointer;border-radius:3px">
             </div>
             <button class="ed-btn-primary" onclick="addBoss()">+ Add Boss</button>
             <div id="bossStatus" class="ed-status"></div>
@@ -208,12 +219,17 @@
           <div id="manualQuestionList" class="ed-question-list"></div>
           <div class="ed-add-form">
             <div class="ed-add-header">+ Add a question</div>
-            <input type="text" id="manualQ"  class="ed-input" placeholder="Question text" onkeydown="if(event.key==='Enter')document.getElementById('manualA').focus()">
-            <input type="text" id="manualA"  class="ed-input ed-input-correct" placeholder="✓ Correct answer" onkeydown="if(event.key==='Enter')document.getElementById('manualW1').focus()">
+            <input type="text" id="manualQ" class="ed-input" placeholder="Question text"
+              onkeydown="if(event.key==='Enter')document.getElementById('manualA').focus()">
+            <input type="text" id="manualA" class="ed-input ed-input-correct" placeholder="✓ Correct answer"
+              onkeydown="if(event.key==='Enter')document.getElementById('manualW1').focus()">
             <div class="ed-wrongs-row">
-              <input type="text" id="manualW1" class="ed-input ed-input-wrong" placeholder="✗ Wrong 1" onkeydown="if(event.key==='Enter')document.getElementById('manualW2').focus()">
-              <input type="text" id="manualW2" class="ed-input ed-input-wrong" placeholder="✗ Wrong 2" onkeydown="if(event.key==='Enter')document.getElementById('manualW3').focus()">
-              <input type="text" id="manualW3" class="ed-input ed-input-wrong" placeholder="✗ Wrong 3" onkeydown="if(event.key==='Enter')addQuestion()">
+              <input type="text" id="manualW1" class="ed-input ed-input-wrong" placeholder="✗ Wrong 1"
+                onkeydown="if(event.key==='Enter')document.getElementById('manualW2').focus()">
+              <input type="text" id="manualW2" class="ed-input ed-input-wrong" placeholder="✗ Wrong 2"
+                onkeydown="if(event.key==='Enter')document.getElementById('manualW3').focus()">
+              <input type="text" id="manualW3" class="ed-input ed-input-wrong" placeholder="✗ Wrong 3"
+                onkeydown="if(event.key==='Enter')addQuestion()">
             </div>
             <button class="ed-btn-primary" onclick="addQuestion()">+ Add Question</button>
             <div id="manualStatus" class="ed-status"></div>
@@ -241,6 +257,8 @@
 
   </div><!-- end game-container -->
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
   <script src="utils.js"></script>
   <script src="config.js"></script>
   <script src="presets.js"></script>
@@ -250,7 +268,7 @@
   <script src="ai.js"></script>
   <script src="ui.js"></script>
   <script src="game.js"></script>
-  <script src="editor.js"></script>
+  <script type="module" src="editor.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -261,4 +279,5 @@
     });
   </script>
 </body>
+
 </html>
