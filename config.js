@@ -1,35 +1,13 @@
 /* ═══════════════════════════════════════════
    config.js — Static game data & settings
-   Edit bosses, difficulty, and player stats
-   here. Nothing else needs to change.
-   ═══════════════════════════════════════════ */   
+   ═══════════════════════════════════════════ */
+
 const Config = {
 
-  /** Gemini API key — loaded from env.js (never commit that file!) */
   geminiApiKey: (typeof Env !== 'undefined' && Env.GEMINI_API_KEY) || '',
 
-  /** How many AI questions to generate per batch */
-  questionsPerBatch: 8,
-  
-  /** How many AI questions to generate per batch */
   questionsPerBatch: 8,
 
-  /**
-   * Boss roster — add a new boss by copying a block.
-   *
-   * id         unique key
-   * name       display name shown in HUD
-   * type       topic sent to AI — also shown as badge
-   * difficulty 'easy' | 'medium' | 'hard'
-   * maxHp      starting HP
-   * dmgDealt   HP player loses on a WRONG answer
-   * dmgTaken   HP boss loses on a CORRECT answer
-   * emoji      boss sprite (swap for <img> with real art)
-   * typeColor  hex — badge background colour
-   * typeBg     rgba — subtle arena overlay colour
-   * intro      dialogue shown when boss enters
-   * defeat     dialogue shown when boss faints
-   */
   bosses: [
     {
       id:         'maths',
@@ -74,22 +52,21 @@ const Config = {
       defeat:     'Poor ROI!\nCEO Maxwell fainted!',
     },
     {
-      id:        'history',
-      name:      'General Napoleon',
-      type:      'HISTORY',
+      id:         'history',
+      name:       'General Napoleon',
+      type:       'HISTORY',
       difficulty: 'medium',
-      maxHp:     110,
-      dmgDealt:  18,
-      dmgTaken:  22,
-      emoji:     '🗡️'
-      , typeColor: '#f87171',
-      typeBg:    'rgba(248,113,113,0.25)',
-      intro:     'General Napoleon representing France comes in!\nHow well do you know history?',
-      defeat:    'Lost to the english!\nGeneral Napoleon fainted!',
-    }
+      maxHp:      110,
+      dmgDealt:   18,
+      dmgTaken:   22,
+      emoji:      '⚔️',
+      typeColor:  '#f87171',
+      typeBg:     'rgba(248,113,113,0.25)',
+      intro:      'General Napoleon representing France comes in!\nHow well do you know history?',
+      defeat:     'Lost to the English!\nGeneral Napoleon fainted!',
+    },
   ],
 
-  /** Player starting stats */
   player: {
     name:  'HERO',
     maxHp: 100,

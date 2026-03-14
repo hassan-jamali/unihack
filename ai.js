@@ -39,7 +39,7 @@ Requirements:
 Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences. Format:
 [{ "q": "Question?", "a": "Correct answer", "w": ["Wrong 1", "Wrong 2", "Wrong 3"] }]`;
 
-    const url = `https://generativelanguage.googleapis.com/v1alpha/models/gemini-3-flash-preview:generateContent?key=${Config.geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${Config.geminiApiKey}`;
 
     const response = await fetch(url, {
       method:  'POST',
@@ -141,6 +141,16 @@ Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences.
         { q: "A 'bear market' means?",      a: 'Prices falling 20%+',     w: ['Prices rising fast', 'Stable market', 'New market opening'] },
         { q: "What is 'inflation'?",        a: 'Rise in general prices',  w: ['Fall in unemployment', 'Increase in exports', 'Drop in interest rates'] },
         { q: "What is 'cash flow'?",        a: 'Money moving in & out',   w: ['Total profit', 'Bank balance', 'Tax owed'] },
+      ],
+      HISTORY: [
+        { q: 'Who was the first US President?',    a: 'George Washington', w: ['John Adams', 'Thomas Jefferson', 'Benjamin Franklin'] },
+        { q: 'Year WW2 ended?',                    a: '1945',              w: ['1943', '1944', '1918'] },
+        { q: 'Which empire built the Colosseum?',  a: 'Roman Empire',      w: ['Greek Empire', 'Ottoman Empire', 'Byzantine Empire'] },
+        { q: 'Who painted the Sistine Chapel?',    a: 'Michelangelo',      w: ['Leonardo da Vinci', 'Raphael', 'Botticelli'] },
+        { q: 'Year the Berlin Wall fell?',         a: '1989',              w: ['1991', '1987', '1985'] },
+        { q: 'Napoleon was exiled to?',            a: 'Saint Helena',      w: ['Elba', 'Corsica', 'Malta'] },
+        { q: 'First country to give women vote?',  a: 'New Zealand',       w: ['Australia', 'Finland', 'USA'] },
+        { q: 'Ancient wonder still standing?',     a: 'Great Pyramid',     w: ['Colossus of Rhodes', 'Lighthouse of Alexandria', 'Hanging Gardens'] },
       ],
     };
     return questions[type] ?? questions.MATHS;

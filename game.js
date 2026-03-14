@@ -25,9 +25,10 @@ const Game = {
 
   /**
    * Sets up a new boss fight:
-   * 1. Fires off AI question fetch in the background
-   * 2. Populates HUD while waiting
-   * 3. Plays boss intro, then starts questioning
+   * 1. Populates HUD immediately
+   * 2. Animates boss entrance and plays intro dialogue
+   * 3. THEN fetches AI questions (loading dots appear here)
+   * 4. Starts questioning once questions are ready
    */
   async _startBoss() {
     const boss      = State.currentBoss;
@@ -36,23 +37,21 @@ const Game = {
     State.poolIndex = 0;
     UI.hideAnswers();
 
-    // Kick off AI fetch immediately — loading dots appear automatically
-    const questionsPromise = AI.fetchQuestions(boss);
-
-    // Populate the HUD while the fetch runs in background
+    // Populate the HUD immediately
     UI.setArenaOverlay(boss.typeBg);
     UI.setBossHUD(boss);
     UI.setHpBar('bossHpFill',   'bossHpNumbers',   boss.maxHp,     boss.maxHp);
     UI.setHpBar('playerHpFill', 'playerHpNumbers', State.playerHp, Config.player.maxHp);
     UI.updateProgressDots(State.bossIndex, Config.bosses.length);
 
-    // Wait for questions, then animate the boss entrance
-    const bossEl       = UI.setBossSprite(boss.emoji);
-    State.questionPool = await questionsPromise;
-
+    // Animate boss entrance and play intro — no API call yet
+    const bossEl = UI.setBossSprite(boss.emoji);
     UI.animateBossEntry(bossEl);
     await UI.typewrite(boss.intro);
     await sleep(1400);
+
+    // NOW fetch questions — loading dots appear in the dialogue box
+    State.questionPool = await AI.fetchQuestions(boss);
     this._askQuestion();
   },
 
@@ -124,7 +123,7 @@ const Game = {
     const boss     = State.currentBoss;
     State.playerHp = Math.max(0, State.playerHp - boss.dmgDealt);
 
-    await UI.typewrite(`✗ Wrong! Fucking \nAnswer: ${correct}\nYou took ${boss.dmgDealt} damage!`);
+    await UI.typewrite(`✗ Wrong!\nAnswer: ${correct}\nYou took ${boss.dmgDealt} damage!`);
     UI.animatePlayerHit();
     UI.animateHpBar('playerHpFill', 'playerHpNumbers', State.playerHp, Config.player.maxHp);
 
@@ -150,17 +149,17 @@ const Game = {
     State.bossIndex++;
 
     if (State.bossIndex < Config.bosses.length) {
-      await UI.typewrite('A new challenger is cominggggg !!!');
+      await UI.typewrite('A new challenger approaches!');
       await sleep(1400);
       this._startBoss();
     } else {
-      UI.showOverlay('🏆 YOU WIN!', 'You defeated all 3 bosses!\nBrain Battle Champion!');
+      UI.showOverlay('🏆 YOU WIN!', 'You defeated all 4 bosses!\nBrain Battle Champion!');
     }
   },
 
   async _playerFainted() {
     UI.hideAnswers();
-    await UI.typewrite('You fainted...\n Next time just study mate!');
+    await UI.typewrite('You fainted...\nNext time just study mate!');
     await sleep(1800);
     UI.showOverlay('💀 YOU FAINTED', 'Your brain needs more training!');
   },

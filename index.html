@@ -4,127 +4,171 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Brain Battle</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- title screen -->
-  <div id="title-screen" class="screen active">
+  <div class="game-container">
 
-    <div class="title-logo">🧠 BRAIN<br>BATTLE</div>
-    <div class="title-sub">Answer. Attack. Advance.</div>
+    <!-- ═══════════════════════════════════
+         TITLE SCREEN
+    ════════════════════════════════════ -->
+    <div id="title-screen" class="screen active">
 
-    <div class="boss-preview">
-      <div class="boss-card" style="border-color:#60a5fa">
-        <span class="boss-icon">🧮</span>
-        Prof. Calculus
-        <div class="boss-type" style="background:#60a5fa">MATHS</div>
+      <!-- Red banner logo at top -->
+      <div class="title-banner">
+        <div class="title-logo">🧠 BRAIN BATTLE</div>
+        <div class="title-sub">Answer · Attack · Advance</div>
       </div>
-      <div class="boss-card" style="border-color:#4ade80">
-        <span class="boss-icon">🔬</span>
-        Dr. Proton
-        <div class="boss-type" style="background:#4ade80">SCIENCE</div>
-      </div>
-      <div class="boss-card" style="border-color:#fbbf24">
-        <span class="boss-icon">💼</span>
-        CEO Maxwell
-        <div class="boss-type" style="background:#fbbf24">BUSINESS</div>
-      </div>
-      <div class="boss-card" style="border-color:#fbbf24">
-        <span class="boss-icon">💼</span>
-        General Napoleon
-        <div class="boss-type" style="background:#9638a7">HISTORY</div>
-      </div>
-    </div>
 
-    <button class="btn-start" onclick="startGame()">▶ START GAME</button>
+      <!-- Challenger select label -->
+      <div class="choose-label">Choose your challenger</div>
 
-  </div>
+      <!-- Boss cards -->
+      <div class="boss-preview">
 
-  <!-- battle screen -->
-  <div id="battle-screen" class="screen">
-
-    <!-- Arena (sprites + HUDs) -->
-    <div class="arena">
-      <div class="arena-bg"></div>
-      <div class="arena-type-overlay" id="typeOverlay"></div>
-
-      <!-- Shadow platforms -->
-      <div class="platform-boss"></div>
-      <div class="platform-player"></div>
-
-      <!-- Boss HUD — top left -->
-      <div class="hud-boss">
-        <div class="hud-name-row">
-          <span class="hud-name" id="bossName">???</span>
-          <span class="type-badge" id="typeBadge">TYPE</span>
-        </div>
-        <div class="hp-label-row">
-          <span class="hp-text">HP</span>
-          <div class="hp-track">
-            <div class="hp-fill" id="bossHpFill"></div>
+        <div class="boss-card" style="border-color:#60a5fa">
+          <span class="boss-icon">🧮</span>
+          <div class="boss-card-name">Prof.<br>Calculus</div>
+          <div class="boss-type" style="background:#60a5fa">MATHS</div>
+          <div class="boss-card-hp">
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
           </div>
         </div>
-        <div class="hp-numbers" id="bossHpNumbers">100 / 100</div>
-      </div>
 
-      <!-- Boss sprite -->
-      <div class="boss-sprite" id="bossSprite">❓</div>
-
-      <!-- Player sprite -->
-      <div class="player-sprite" id="playerSprite">🧑‍💻</div>
-
-      <!-- Player HUD — bottom right -->
-      <div class="hud-player">
-        <div class="hud-name-row">
-          <span class="hud-name">HERO</span>
-        </div>
-        <div class="hp-label-row">
-          <span class="hp-text">HP</span>
-          <div class="hp-track">
-            <div class="hp-fill" id="playerHpFill"></div>
+        <div class="boss-card" style="border-color:#4ade80">
+          <span class="boss-icon">🔬</span>
+          <div class="boss-card-name">Dr.<br>Proton</div>
+          <div class="boss-type" style="background:#4ade80">SCIENCE</div>
+          <div class="boss-card-hp">
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
           </div>
         </div>
-        <div class="hp-numbers" id="playerHpNumbers">100 / 100</div>
+
+        <div class="boss-card" style="border-color:#fbbf24">
+          <span class="boss-icon">💼</span>
+          <div class="boss-card-name">CEO<br>Maxwell</div>
+          <div class="boss-type" style="background:#fbbf24">BUSINESS</div>
+          <div class="boss-card-hp">
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+            <div class="hp-pip"></div>
+          </div>
+        </div>
+
+        <div class="boss-card" style="border-color:#f87171">
+          <span class="boss-icon">⚔️</span>
+          <div class="boss-card-name">General<br>Napoleon</div>
+          <div class="boss-type" style="background:#9638a7; color:#f0d0ff">HISTORY</div>
+          <div class="boss-card-hp">
+            <div class="hp-pip" style="background:#f87171"></div>
+            <div class="hp-pip" style="background:#f87171"></div>
+            <div class="hp-pip" style="background:#f87171"></div>
+            <div class="hp-pip" style="background:#f87171"></div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Win / Lose overlay -->
-      <div class="battle-overlay" id="battleOverlay">
-        <div class="overlay-title" id="overlayTitle">YOU WIN!</div>
-        <div class="overlay-sub"   id="overlaySub"></div>
-        <button class="btn-restart" onclick="restartGame()">▶ PLAY AGAIN</button>
-      </div>
+      <button class="btn-start" onclick="startGame()">▶ START GAME</button>
+      <div class="title-version">v1.0 · Brain Battle Edition</div>
+
     </div>
 
-    <!-- Boss progress bar -->
-    <div class="status-bar">
-      <span id="statusText">Boss 1 of 3</span>
-      <div class="boss-dots" id="bossDots"></div>
-    </div>
 
-    <!-- Dialogue + answers -->
-    <div class="dialogue-box">
-      <div class="dialogue-inner">
-        <div class="dialogue-text" id="dialogueText">…</div>
+    <!-- ═══════════════════════════════════
+         BATTLE SCREEN
+    ════════════════════════════════════ -->
+    <div id="battle-screen" class="screen">
+
+      <div class="arena">
+        <div class="arena-bg"></div>
+        <div class="arena-type-overlay" id="typeOverlay"></div>
+
+        <div class="platform-boss"></div>
+        <div class="platform-player"></div>
+
+        <!-- Boss HUD -->
+        <div class="hud-boss">
+          <div class="hud-name-row">
+            <span class="hud-name" id="bossName">???</span>
+            <span class="type-badge" id="typeBadge">TYPE</span>
+          </div>
+          <div class="hp-label-row">
+            <span class="hp-text">HP</span>
+            <div class="hp-track">
+              <div class="hp-fill" id="bossHpFill"></div>
+            </div>
+          </div>
+          <div class="hp-numbers" id="bossHpNumbers">100 / 100</div>
+        </div>
+
+        <div class="boss-sprite" id="bossSprite">❓</div>
+        <div class="player-sprite" id="playerSprite">🧑‍💻</div>
+
+        <!-- Player HUD -->
+        <div class="hud-player">
+          <div class="hud-name-row">
+            <span class="hud-name">HERO</span>
+          </div>
+          <div class="hp-label-row">
+            <span class="hp-text">HP</span>
+            <div class="hp-track">
+              <div class="hp-fill" id="playerHpFill"></div>
+            </div>
+          </div>
+          <div class="hp-numbers" id="playerHpNumbers">100 / 100</div>
+        </div>
+
+        <!-- Win / Lose overlay -->
+        <div class="battle-overlay" id="battleOverlay">
+          <div class="overlay-title" id="overlayTitle">YOU WIN!</div>
+          <div class="overlay-sub" id="overlaySub"></div>
+          <button class="btn-restart" onclick="restartGame()">▶ PLAY AGAIN</button>
+        </div>
+
       </div>
-      <div class="answers-area" id="answersArea">
-        <button class="answer-btn" id="btn0" onclick="selectAnswer(0)"></button>
-        <button class="answer-btn" id="btn1" onclick="selectAnswer(1)"></button>
-        <button class="answer-btn" id="btn2" onclick="selectAnswer(2)"></button>
-        <button class="answer-btn" id="btn3" onclick="selectAnswer(3)"></button>
+
+      <!-- Boss progress -->
+      <div class="status-bar">
+        <span id="statusText">Boss 1 of 4</span>
+        <div class="boss-dots" id="bossDots"></div>
       </div>
-    </div>
 
-  </div><!-- end #battle-screen -->
+      <!-- Dialogue -->
+      <div class="dialogue-box">
+        <div class="dialogue-inner">
+          <div class="dialogue-text" id="dialogueText">…</div>
+        </div>
+        <div class="answers-area" id="answersArea">
+          <button class="answer-btn" id="btn0" onclick="selectAnswer(0)"></button>
+          <button class="answer-btn" id="btn1" onclick="selectAnswer(1)"></button>
+          <button class="answer-btn" id="btn2" onclick="selectAnswer(2)"></button>
+          <button class="answer-btn" id="btn3" onclick="selectAnswer(3)"></button>
+        </div>
+      </div>
 
-  <!-- Load order matters: each file depends on the ones above it -->
-  <script src="utils.js"></script>   <!-- pure helpers, no deps         -->
+    </div><!-- end #battle-screen -->
+
+  </div><!-- end game-container -->
+
+  <script src="utils.js"></script>
   <script src="env.js"></script>
-  <script src="config.js"></script>  <!-- static data, no deps          -->
-  <script src="state.js"></script>   <!-- runtime state, needs config   -->
-  <script src="ai.js"></script>      <!-- API calls, needs config+state -->
-  <script src="ui.js"></script>      <!-- DOM layer, needs utils        -->
-  <script src="game.js"></script>    <!-- orchestrator, needs all above -->
+  <script src="config.js"></script>
+  <script src="state.js"></script>
+  <script src="ai.js"></script>
+  <script src="ui.js"></script>
+  <script src="game.js"></script>
+
 </body>
 </html>
