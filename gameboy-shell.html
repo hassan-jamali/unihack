@@ -10,45 +10,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   
   <style>
-    .boss-preview {
-      overflow-x: auto;
-      overflow-y: hidden;
-      white-space: nowrap;
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
+    /* Scroll arrows above boss cards */
+    .scroll-arrows-above {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 10px;
+      margin-bottom: 4px;
     }
     
-    .boss-preview::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .boss-preview * {
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-    }
-    
-    .scroll-arrows {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
-    
-    .scroll-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 30px;
-      height: 60px;
+    .scroll-arrow-above {
+      width: 20px;
+      height: 20px;
       background: rgba(10, 10, 30, 0.8);
       border: 2px solid #2a2a4a;
       border-radius: 4px;
@@ -56,26 +29,18 @@
       align-items: center;
       justify-content: center;
       color: #60a5fa;
-      font-size: 16px;
+      font-size: 10px;
       cursor: pointer;
-      pointer-events: all;
       transition: all 0.2s;
     }
     
-    .scroll-arrow:hover {
+    .scroll-arrow-above:hover {
       background: rgba(42, 42, 74, 0.9);
       border-color: #60a5fa;
+      transform: scale(1.1);
     }
     
-    .scroll-arrow.left {
-      left: 5px;
-    }
-    
-    .scroll-arrow.right {
-      right: 5px;
-    }
-    
-    .scroll-arrow.hidden {
+    .scroll-arrow-above.hidden {
       opacity: 0;
       pointer-events: none;
     }
@@ -140,11 +105,14 @@
 
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;z-index:1">
               <div class="choose-label">Choose your challenger</div>
+              
+              <!-- Scroll arrows above boss cards -->
+              <div class="scroll-arrows-above">
+                <div class="scroll-arrow-above left" id="scrollLeft" onclick="scrollBosses('left')">‹</div>
+                <div class="scroll-arrow-above right" id="scrollRight" onclick="scrollBosses('right')">›</div>
+              </div>
+              
               <div class="boss-preview" id="bossCardsContainer">
-                <div class="scroll-arrows">
-                  <div class="scroll-arrow left" id="scrollLeft" onclick="scrollBosses('left')">‹</div>
-                  <div class="scroll-arrow right" id="scrollRight" onclick="scrollBosses('right')">›</div>
-                </div>
               </div>
               <button class="btn-start" onclick="startGame()">▶ START</button>
             </div>
@@ -159,6 +127,12 @@
 
           <!-- ─── BATTLE SCREEN ─── -->
           <div id="battle-screen" class="screen">
+            <!-- Back button -->
+            <div class="back-button" id="backButton" onclick="goBack()" style="display:none">
+              <span class="back-icon">←</span>
+              <span class="back-text">BACK</span>
+            </div>
+            
             <div class="arena">
               <div class="arena-bg"></div>
               <div class="arena-type-overlay" id="typeOverlay"></div>
@@ -217,6 +191,12 @@
 
           <!-- ─── SHOP SCREEN ─── -->
           <div id="shop-screen" class="screen">
+            <!-- Back button -->
+            <div class="back-button" id="backButton" onclick="goBack()" style="display:none">
+              <span class="back-icon">←</span>
+              <span class="back-text">BACK</span>
+            </div>
+            
             <div class="meta-header">
               <button class="meta-back" onclick="goToTitle()">← BACK</button>
               <div class="meta-title">SHOP</div>
@@ -228,6 +208,12 @@
 
           <!-- ─── QUESTS SCREEN ─── -->
           <div id="quests-screen" class="screen">
+            <!-- Back button -->
+            <div class="back-button" id="backButton" onclick="goBack()" style="display:none">
+              <span class="back-icon">←</span>
+              <span class="back-text">BACK</span>
+            </div>
+            
             <div class="meta-header">
               <button class="meta-back" onclick="goToTitle()">← BACK</button>
               <div class="meta-title">QUESTS</div>
@@ -238,6 +224,12 @@
 
           <!-- ─── EDITOR SCREEN ─── -->
           <div id="editor-screen" class="screen">
+            <!-- Back button -->
+            <div class="back-button" id="backButton" onclick="goBack()" style="display:none">
+              <span class="back-icon">←</span>
+              <span class="back-text">BACK</span>
+            </div>
+            
             <div class="ed-header">
               <div class="ed-title">QUESTION EDITOR</div>
               <button class="ed-close-btn" onclick="closeEditor()">✕ BACK</button>

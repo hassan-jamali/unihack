@@ -9,7 +9,7 @@ import './shells/gameboy_shell.js';
 
 // Global exports so inline HTML onclicks still work
 import { startGame, restartGame, selectAnswer } from './game/game.js';
-import { openShop, ShopUI, goToTitle } from './ui/ui.js';
+import { openShop, ShopUI, goToTitle, goBack } from './ui/ui.js';
 import { Editor } from './ui/editor.js';
 
 // Wire up lazy cheat references
@@ -20,12 +20,13 @@ window.startGame = startGame;
 window.restartGame = restartGame;
 window.goToTitle = goToTitle;
 window.selectAnswer = selectAnswer;
+window.goBack = goBack;
 
 window.openShop = openShop;
 window.ShopUI = ShopUI;
 
 window.openQuests = function() {
-  UI.showScreen('quests-screen');
+  UI.showScreen('quests-screen', 'slide-left');
   setTimeout(() => UI.renderQuests(), 50);
 };
 

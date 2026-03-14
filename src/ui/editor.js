@@ -21,12 +21,12 @@ export const Editor = {
     this._switchTab('bosses');
     document.getElementById('settingsApiKey').value = Config.geminiApiKey || '';
     document.getElementById('settingsQCount').value = Config.questionsPerBatch || 8;
-    UI.showScreen('editor-screen');
+    UI.showScreen('editor-screen', 'slide-up');
   },
 
   close() {
     UI.renderBossCards();
-    UI.showScreen('title-screen');
+    UI.showScreen('title-screen', 'slide-down');
   },
 
   // ── Tab switching ─────────────────────────
