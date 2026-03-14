@@ -5,9 +5,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "pdfjs-dist": "^5.5.207"
+    "pdfjs-dist": "^5.5.207",
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "vite": "^5.0.0"
+    "vite": "^5.4.21"
   }
 }
