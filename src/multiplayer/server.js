@@ -6,7 +6,7 @@
 
 const AVATARS  = ['🧑‍💻', '👾', '🤖', '🧙', '🦊', '🐉', '🎮', '🌟'];
 const COLORS   = ['#e94560', '#4ade80', '#60a5fa', '#f59e0b', '#a78bfa', '#f472b6', '#34d399', '#fb923c'];
-const WS_URL   = 'wss://https://unihack.up.railway.app/'; // ← change to your server address for real cross-device play
+const WS_URL   = 'wss://unihack.up.railway.app/'; // ← change to your server address for real cross-device play
 
 let mpState = {
   roomCode:   null,
