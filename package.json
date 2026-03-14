@@ -6,7 +6,8 @@
   },
   "dependencies": {
     "pdfjs-dist": "^5.5.207",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "vite": "^5.4.21"
