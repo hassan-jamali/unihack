@@ -8,6 +8,7 @@ import { State } from '../core/state.js';
 import { Presets } from '../game/presets.js';
 import { Shop } from './shop.js';
 import { triggerAnim, sleep } from '../core/utils.js';
+import { Multiplayer } from '../multiplayer/server.js';
 
 export const UI = {
 
@@ -315,7 +316,12 @@ export const ShopUI = {
 
 export function openMultiplayer() {
   UI.showScreen('multiplayer-screen');
-  Multiplayer.mount(document.getElementById('mp-root'));
+  const root = document.getElementById('mp-root');
+  if (!root._mounted) {
+    Multiplayer.mount(root);
+    root._mounted = true;
+  }
+  Multiplayer._requestRoomList();
 }
 window.openMultiplayer = openMultiplayer;
 

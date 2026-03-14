@@ -46,6 +46,7 @@ body {
   overflow: hidden;
 }
 
+
 .game-container {
   width: 100vw;
   height: 100vh;
@@ -62,7 +63,7 @@ body {
   inset: 0;
   background: repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.06) 3px);
   pointer-events: none;
-  z-index: 100;
+  z-index: 0;
 }
 
 /* ── Screen system ── */
