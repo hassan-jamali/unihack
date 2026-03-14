@@ -10,7 +10,10 @@ const UI = {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
   },
-  showBattleScreen() { this.showScreen('battle-screen'); },
+  showBattleScreen() { 
+    this.showScreen('battle-screen'); 
+    requestAnimationFrame(() => this.alignPlatforms());
+  },
   showTitleScreen()  {
     this.renderBossCards();
     this.updateHUD();
@@ -313,3 +316,4 @@ function openQuests() {
 function goToTitle() {
   UI.showTitleScreen();
 }
+
