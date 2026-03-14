@@ -47,7 +47,7 @@ body {
   height: min(95vh, 680px);
   display: flex;
   flex-direction: column;
-  background: #0c0c1a;
+  background: #1a1a55;
   border: 4px solid #2a2a4a;
   border-radius: 8px;
   box-shadow: 0 0 0 3px #111, 0 0 40px rgba(0,0,0,0.6);
@@ -84,10 +84,7 @@ body {
   justify-content: flex-start;
   overflow: hidden;
   animation: fadeIn 0.6s ease;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(96,165,250,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 60%, rgba(233,69,96,0.08) 0%, transparent 50%),
-    linear-gradient(180deg, #08091a 0%, #0d1230 40%, #111a3a 70%, #1a1a2e 100%);
+  background: #152910;
 }
 
 /* Push choose-label, cards, button into a centred block */
@@ -123,8 +120,8 @@ body {
 
 .title-banner {
   width: 100%;
-  background: linear-gradient(135deg, #e94560 0%, #c02040 50%, #8a0f28 100%);
-  border-bottom: 5px solid #5a0818;
+  background: linear-gradient(135deg, #152910 30%, #acf1a2 0%, #38af38 100%);
+  border-bottom: 5px solid #98ecb9;
   padding: 14px 20px 12px;
   text-align: center;
   flex-shrink: 0;
@@ -133,14 +130,14 @@ body {
 .title-logo {
   font-size: clamp(14px, 3vw, 22px);
   color: #fff;
-  text-shadow: 3px 3px 0 #7a0818;
+  text-shadow: 3px 3px 0 #a6a82f;
   line-height: 1.3;
   letter-spacing: 2px;
 }
 
 .title-sub {
   font-size: clamp(5px, 1vw, 7px);
-  color: rgba(255,220,220,0.8);
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 5px;
   letter-spacing: 3px;
 }
@@ -177,7 +174,7 @@ body {
 }
 
 .boss-card {
-  background: #0a1428;
+  background: #1d412b;
   border: 3px solid;
   border-radius: 4px;
   padding: 6px 6px 4px;
@@ -211,6 +208,22 @@ body {
   top: 3px; right: 4px;
   font-size: 5px;
   color: rgba(255,255,255,0.3);
+  z-index: 1;
+}
+
+/* Hexagonal background decoration */
+.boss-card::after {
+  content: "";
+  position: absolute;
+  width: 80px;
+  aspect-ratio: 1 / cos(30deg);
+  background: rgba(160, 160, 170, 0.10);
+  clip-path: polygon(50% -50%, 100% 50%, 50% 150%, 0 50%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .boss-card-all::before { content: ""; }
@@ -226,6 +239,8 @@ body {
   flex-shrink: 0;
   border-radius: 3px;
   object-fit: cover;
+  position: relative;
+  z-index: 1;
 }
 img.boss-icon { font-size: 0; }
 
@@ -236,6 +251,8 @@ img.boss-icon { font-size: 0; }
   margin-bottom: 2px;
   overflow: hidden;
   max-height: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .boss-type {
@@ -286,7 +303,7 @@ img.boss-icon { font-size: 0; }
 
 .title-version {
   font-size: 5px;
-  color: rgba(255,255,255,0.2);
+  color: rgba(138, 168, 26, 0.822);
   letter-spacing: 2px;
 }
 
@@ -303,15 +320,15 @@ img.boss-icon { font-size: 0; }
   transition: all 0.15s;
 }
 .btn-config:hover {
-  border-color: rgba(255,255,255,0.5);
+  border-color: rgba(255, 255, 255, 0.979);
   color: rgba(255,255,255,0.7);
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.952);
 }
 
 /* ── Start button ── */
 .btn-start {
   background: var(--accent);
-  color: white;
+  color: rgb(255, 255, 255);
   border: none;
   padding: 12px 28px;
   font-family: var(--font-pixel);
