@@ -142,6 +142,9 @@ const Player = {
   get questsUnlocked() { return this.data.questsUnlocked; },
   set questsUnlocked(v) { this.data.questsUnlocked = v; this.save(); },
 
+  get gameboyUnlocked()   { return !!this.data.gameboyUnlocked; },
+  set gameboyUnlocked(v)  { this.data.gameboyUnlocked = v; this.save(); },
+
   get shopUnlocked() { return this.data.shopUnlocked; },
 
   getQuestProgress(id) { return this.data.questProgress[id] || { completed: false }; },

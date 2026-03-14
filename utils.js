@@ -32,6 +32,7 @@ function triggerAnim(el, cls, duration) {
    cheat.unlockShop()  — unlock the shop now
    cheat.unlockQuests()— unlock quests now
    cheat.reset()       — wipe all player data
+   cheat,unlockGameboy() - unlock gameboy now
    ════════════════════════════════════════ */
 const cheat = {
   xp(amount = 100) {
@@ -58,6 +59,12 @@ const cheat = {
     UI.updateHUD();
     console.log('Shop unlocked!');
   },
+  unlockGameboy() {
+  Player.data.gameboyUnlocked = true;
+  Player.save();
+  UI.updateHUD();
+  console.log('Game Boy mode unlocked!');
+},
   unlockQuests() {
     Player.data.questsUnlocked = true;
     Player.save();

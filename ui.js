@@ -36,6 +36,8 @@ const UI = {
     if (coins) coins.textContent= `🪙 ${Player.coins}`;
     if (shop)  shop.style.display = Player.shopUnlocked  ? 'inline-block' : 'none';
     if (quest) quest.style.display= Player.questsUnlocked? 'inline-block' : 'none';
+    const gb = document.getElementById('gameboy');
+    if (gb) gb.style.display = Player.gameboyUnlocked ? 'inline-block' : 'none';
   },
 
   // ── Arena ─────────────────────────────────
@@ -316,4 +318,3 @@ function openQuests() {
 function goToTitle() {
   UI.showTitleScreen();
 }
-
