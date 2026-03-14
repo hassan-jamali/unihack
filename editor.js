@@ -41,6 +41,8 @@ const Editor = {
     if (Config.bosses.length === 0) {
       container.innerHTML = `<span style="font-size:5px;color:#3a4a6a">No bosses — add one in the Bosses tab</span>`;
       this._activeBossIndex = 0;
+      const list = document.getElementById('manualQuestionList');
+      if (list) list.innerHTML = `<div class="ed-empty">Add a boss first.</div>`;
     } else {
       container.innerHTML = Config.bosses.map((b, i) => `
         <button class="ed-boss-tab ${i === 0 ? 'active' : ''}"
@@ -50,8 +52,8 @@ const Editor = {
         </button>
       `).join('');
       this._activeBossIndex = 0;
+      this._refreshManualList();
     }
-    this._refreshManualList();
     const s = document.getElementById('pdfStatus');
     if (s) { s.textContent = ''; s.className = 'ed-status'; }
   },
@@ -154,9 +156,14 @@ Respond ONLY with a raw JSON array, no markdown:
   // ══════════════════════════════════════════
 
   _refreshManualList() {
-    const boss      = this._activeBoss;
-    const questions = boss._customQuestions || [];
     const container = document.getElementById('manualQuestionList');
+    if (!container) return;
+    const boss = this._activeBoss;
+    if (!boss) {
+      container.innerHTML = `<div class="ed-empty">Add a boss first.</div>`;
+      return;
+    }
+    const questions = boss._customQuestions || [];
 
     if (questions.length === 0) {
       container.innerHTML = `<div class="ed-empty">No custom questions yet — add one below!</div>`;
@@ -176,11 +183,11 @@ Respond ONLY with a raw JSON array, no markdown:
   },
 
   addQuestion() {
-    const boss = this._activeBoss;
-    if (!boss) {
-      this._manualStatus('No boss selected.', 'error');
+    if (Config.bosses.length === 0) {
+      this._manualStatus('Add a boss first.', 'error');
       return;
     }
+    const boss = this._activeBoss;
 
     const q  = (document.getElementById('manualQ')?.value  || '').trim();
     const a  = (document.getElementById('manualA')?.value  || '').trim();
