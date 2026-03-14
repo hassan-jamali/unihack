@@ -3,6 +3,10 @@
    Two modes: PDF upload or manual builder
    ═══════════════════════════════════════════ */
 
+import { preprocessPDF } from "./ai/rag.js";
+
+
+
 const Editor = {
 
   _activeBossIndex: 0,
@@ -75,71 +79,53 @@ const Editor = {
   // ══════════════════════════════════════════
 
   async processPdf() {
+
+    const boss = this._activeBoss;
+    if (!boss) {
+      this._pdfStatus('Please add a boss first in the Bosses tab.', 'error');
+      return;
+    }
+
     const fileInput = document.getElementById('pdfFileInput');
     const file = fileInput.files[0];
 
-    if (!file) { this._pdfStatus('Please select a PDF first.', 'error'); return; }
-    if (!Config.geminiApiKey) { this._pdfStatus('Set your Gemini API key in Settings first.', 'error'); return; }
+    if (!file) {
+      this._pdfStatus('Please select a PDF first.', 'error');
+      return;
+    }
 
-    this._pdfStatus('Reading PDF...', 'info');
-    document.getElementById('btnProcessPdf').disabled = true;
+    this._pdfStatus('Processing PDF with RAG...', 'info');
 
     try {
-      const base64 = await this._fileToBase64(file);
-      this._pdfStatus('Generating questions with AI...', 'info');
 
-      const boss  = this._activeBoss;
-      const count = parseInt(document.getElementById('pdfQuestionCount').value) || 8;
+      const chunks = await preprocessPDF(file);
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${Config.geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { inline_data: { mime_type: 'application/pdf', data: base64 } },
-                { text: `Generate exactly ${count} multiple choice quiz questions based on this document.
-Each question: 1 correct answer, 3 wrong answers.
-Keep questions under 80 chars, answers under 40 chars.
-Respond ONLY with a raw JSON array, no markdown:
-[{"q":"Question?","a":"Correct","w":["W1","W2","W3"]}]` }
-              ]
-            }],
-            generationConfig: { temperature: 0.5, maxOutputTokens: 4096 }
-          })
-        }
-      );
+      console.log("RAG chunks created:", chunks.length);
 
-      if (!response.ok) throw new Error(`API error ${response.status}`);
+      const context = chunks.slice(0, 4).join("\n\n");
 
-      const data    = await response.json();
-      const rawText = data.candidates?.[0]?.content?.parts?.map(p => p.text).join('') ?? '';
-      const match   = rawText.match(/\[[\s\S]*\]/);
-      if (!match) throw new Error('No questions returned from API');
+      console.log("Sending context to Gemini...");
 
-      const questions = JSON.parse(match[0]).filter(q =>
-        q.q && q.a && Array.isArray(q.w) && q.w.length >= 3
-      );
+      const questions = await AI.generateFromText(context);
 
-      if (questions.length === 0) throw new Error('No valid questions parsed');
+      console.log("Generated questions:", questions);
 
-      this._mergeQuestions(boss, questions);
-      this._pdfStatus(`✅ Added ${questions.length} questions to ${boss.name}!`, 'success');
-      this._refreshManualList();
+      Editor._mergeQuestions(this._activeBoss, questions);
+
+      this._pdfStatus(`Generated ${questions.length} questions`, "success");
 
     } catch (err) {
-      this._pdfStatus('❌ ' + err.message, 'error');
-    } finally {
-      document.getElementById('btnProcessPdf').disabled = false;
+
+      this._pdfStatus('RAG error: ' + err.message, 'error');
+
     }
+
   },
 
   _fileToBase64(file) {
     return new Promise((res, rej) => {
       const r = new FileReader();
-      r.onload  = () => res(r.result.split(',')[1]);
+      r.onload = () => res(r.result.split(',')[1]);
       r.onerror = () => rej(new Error('File read failed'));
       r.readAsDataURL(file);
     });
@@ -148,7 +134,7 @@ Respond ONLY with a raw JSON array, no markdown:
   _pdfStatus(msg, type) {
     const el = document.getElementById('pdfStatus');
     el.textContent = msg;
-    el.className   = 'ed-status ' + type;
+    el.className = 'ed-status ' + type;
   },
 
   // ══════════════════════════════════════════
@@ -189,8 +175,8 @@ Respond ONLY with a raw JSON array, no markdown:
     }
     const boss = this._activeBoss;
 
-    const q  = (document.getElementById('manualQ')?.value  || '').trim();
-    const a  = (document.getElementById('manualA')?.value  || '').trim();
+    const q = (document.getElementById('manualQ')?.value || '').trim();
+    const a = (document.getElementById('manualA')?.value || '').trim();
     const w1 = (document.getElementById('manualW1')?.value || '').trim();
     const w2 = (document.getElementById('manualW2')?.value || '').trim();
     const w3 = (document.getElementById('manualW3')?.value || '').trim();
@@ -203,7 +189,9 @@ Respond ONLY with a raw JSON array, no markdown:
     if (!boss._customQuestions) boss._customQuestions = [];
     boss._customQuestions.push({ q, a, w: [w1, w2, w3] });
 
-    ['manualQ','manualA','manualW1','manualW2','manualW3'].forEach(id =>
+    _saveConfig(Config);
+
+    ['manualQ', 'manualA', 'manualW1', 'manualW2', 'manualW3'].forEach(id =>
       document.getElementById(id).value = ''
     );
     document.getElementById('manualQ').focus();
@@ -220,7 +208,7 @@ Respond ONLY with a raw JSON array, no markdown:
   _manualStatus(msg, type) {
     const el = document.getElementById('manualStatus');
     el.textContent = msg;
-    el.className   = 'ed-status ' + type;
+    el.className = 'ed-status ' + type;
     setTimeout(() => { el.textContent = ''; el.className = 'ed-status'; }, 3000);
   },
 
@@ -235,7 +223,7 @@ Respond ONLY with a raw JSON array, no markdown:
     reader.onload = (e) => {
       this._bossImageData = e.target.result;
       const preview = document.getElementById('bossImgPreview');
-      preview.src   = e.target.result;
+      preview.src = e.target.result;
       preview.style.display = 'block';
       document.getElementById('bossImgLabel').textContent = file.name;
     };
@@ -243,10 +231,10 @@ Respond ONLY with a raw JSON array, no markdown:
   },
 
   addBoss() {
-    const name  = document.getElementById('newBossName').value.trim();
-    const type  = document.getElementById('newBossType').value.trim().toUpperCase();
+    const name = document.getElementById('newBossName').value.trim();
+    const type = document.getElementById('newBossType').value.trim().toUpperCase();
     const color = document.getElementById('newBossColor').value;
-    const hp    = parseInt(document.getElementById('newBossHp').value) || 100;
+    const hp = parseInt(document.getElementById('newBossHp').value) || 100;
 
     if (!name || !type) {
       this._bossStatus('Name and Topic are required.', 'error');
@@ -259,22 +247,22 @@ Respond ONLY with a raw JSON array, no markdown:
       name,
       type,
       difficulty: document.getElementById('newBossDiff').value || 'medium',
-      maxHp:      hp,
-      dmgDealt:   15,
-      dmgTaken:   25,
-      typeColor:  color,
-      typeBg:     color + '40',
-      intro:      `${name} appears!\nHow well do you know ${type}?`,
-      defeat:     `${name} fainted!`,
-      image:      this._bossImageData || null,
-      emoji:      this._bossImageData ? null : '❓',
+      maxHp: hp,
+      dmgDealt: 15,
+      dmgTaken: 25,
+      typeColor: color,
+      typeBg: color + '40',
+      intro: `${name} appears!\nHow well do you know ${type}?`,
+      defeat: `${name} fainted!`,
+      image: this._bossImageData || null,
+      emoji: this._bossImageData ? null : '❓',
     };
 
     Config.bosses.push(newBoss);
     _saveConfig(Config);
 
     /* Reset form */
-    ['newBossName','newBossType'].forEach(id => document.getElementById(id).value = '');
+    ['newBossName', 'newBossType'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('newBossHp').value = 100;
     document.getElementById('newBossImgInput').value = '';
     document.getElementById('bossImgPreview').style.display = 'none';
@@ -322,20 +310,20 @@ Respond ONLY with a raw JSON array, no markdown:
     const el = document.getElementById('bossStatus');
     if (!el) return;
     el.textContent = msg;
-    el.className   = 'ed-status ' + type;
+    el.className = 'ed-status ' + type;
     setTimeout(() => { el.textContent = ''; el.className = 'ed-status'; }, 3000);
   },
 
   // ── Settings tab ──────────────────────────
 
   saveSettings() {
-    Config.geminiApiKey      = document.getElementById('settingsApiKey').value.trim();
+    Config.geminiApiKey = document.getElementById('settingsApiKey').value.trim();
     Config.questionsPerBatch = parseInt(document.getElementById('settingsQCount').value) || 8;
     _saveConfig(Config);
 
     const el = document.getElementById('settingsStatus');
     el.textContent = '✅ Saved!';
-    el.className   = 'ed-status success';
+    el.className = 'ed-status success';
     setTimeout(() => { el.textContent = ''; }, 2000);
   },
 
@@ -344,15 +332,16 @@ Respond ONLY with a raw JSON array, no markdown:
   _mergeQuestions(boss, questions) {
     if (!boss._customQuestions) boss._customQuestions = [];
     boss._customQuestions.push(...questions);
+    _saveConfig(Config);
   },
 };
 
 /* Global bindings */
-function openEditor()         { Editor.open();                }
-function closeEditor()        { Editor.close();               }
-function edSwitchTab(t)       { Editor._switchTab(t);         }
-function processPdf()         { Editor.processPdf();          }
-function addQuestion()        { Editor.addQuestion();         }
-function saveSettings()       { Editor.saveSettings();        }
-function addBoss()            { Editor.addBoss();             }
-function previewBossImage(el) { Editor.previewBossImage(el);  }
+window.openEditor = function () { Editor.open(); }
+window.closeEditor = function () { Editor.close(); }
+window.edSwitchTab = function (t) { Editor._switchTab(t); }
+window.processPdf = function () { Editor.processPdf(); }
+window.addQuestion = function () { Editor.addQuestion(); }
+window.saveSettings = function () { Editor.saveSettings(); }
+window.addBoss = function () { Editor.addBoss(); }
+window.previewBossImage = function (el) { Editor.previewBossImage(el); }

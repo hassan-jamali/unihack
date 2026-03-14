@@ -25,6 +25,7 @@ const AI = {
   },
 
   async _callAPI(boss) {
+
     const prompt = `You are generating quiz questions for a Pokémon-style educational battle game.
 
 Generate exactly ${Config.questionsPerBatch} multiple choice questions on the topic of ${boss.type} at a ${boss.difficulty} difficulty level.
@@ -40,14 +41,14 @@ Requirements:
 Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences. Format:
 [{ "q": "Question?", "a": "Correct answer", "w": ["Wrong 1", "Wrong 2", "Wrong 3"] }]`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${Config.geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${Config.geminiApiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 8192, responseMimeType: "application/json" },
       }),
     });
 
@@ -67,11 +68,86 @@ Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences.
     return rawText;
   },
 
-  _parse(rawText) {
-    const match = rawText.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('No JSON array found in response');
 
-    const questions = JSON.parse(match[0]);
+
+  async generateFromText(contextText, bossType = "GENERAL") {
+
+    const count = Number(document.getElementById('pdfQuestionCount')?.value) || 8;
+
+    const prompt = `You are generating quiz questions for a Pokémon-style educational battle game.
+
+Use ONLY the study material below.
+
+STUDY MATERIAL:
+${contextText}
+
+Generate exactly ${count} multiple choice questions.
+
+Requirements:
+- 1 correct answer
+- 3 plausible wrong answers
+- Question < 80 characters
+- Answers < 40 characters
+- Educational and varied
+- No numbering
+- Return ONLY JSON
+
+Format:
+[
+ { "q": "Question?", "a": "Correct", "w": ["Wrong1","Wrong2","Wrong3"] }
+]`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${Config.geminiApiKey}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.6, maxOutputTokens: 8192, responseMimeType: "application/json" }
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("Gemini error:", err);
+      throw new Error("Gemini API failed");
+    }
+
+    const data = await response.json();
+    console.log("Full Gemini API Response:", data);
+
+    const rawText = data.candidates?.[0]?.content?.parts
+      ?.map(p => p.text)
+      ?.join("");
+
+    return this._parse(rawText);
+  },
+
+
+
+
+
+  _parse(rawText) {
+    console.log("Raw JSON text from Gemini:", rawText);
+    
+    let questions;
+    try {
+      questions = JSON.parse(rawText);
+    } catch (e) {
+      console.error("Failed to parse JSON:", e);
+      throw new Error("Invalid JSON structure returned by API.");
+    }
+
+    if (!Array.isArray(questions)) {
+      // Sometimes it wraps it in an object like { "questions": [...] }
+      if (questions.questions && Array.isArray(questions.questions)) {
+        questions = questions.questions;
+      } else {
+        questions = Object.values(questions).find(Array.isArray) || [];
+      }
+    }
+
     if (!Array.isArray(questions) || questions.length === 0)
       throw new Error('Empty or invalid response from API');
 
