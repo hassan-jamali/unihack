@@ -12,6 +12,7 @@ import { Transitions } from './transitions.js';
 
 export const UI = {
 
+  screenHistory: ['title-screen'], // Initialize with title screen
 
   
   // ── Screens ──────────────────────────────
