@@ -2,7 +2,14 @@
    ui.js — All DOM reads and writes
    ═══════════════════════════════════════════ */
 
-const UI = {
+import { Config } from '../core/config.js';
+import { Player } from '../game/player.js';
+import { State } from '../core/state.js';
+import { Presets } from '../game/presets.js';
+import { Shop } from './shop.js';
+import { triggerAnim, sleep } from '../core/utils.js';
+
+export const UI = {
 
   // ── Screens ──────────────────────────────
 
@@ -12,7 +19,6 @@ const UI = {
   },
   showBattleScreen() { 
     this.showScreen('battle-screen'); 
-    requestAnimationFrame(() => this.alignPlatforms());
   },
   showTitleScreen()  {
     this.renderBossCards();
@@ -170,7 +176,7 @@ const UI = {
     container.innerHTML = '';
 
     // Combine presets + custom bosses
-    const all = [...PRESET_BOSSES, ...Config.bosses];
+    const all = [...Presets, ...Config.bosses];
 
     if (all.length === 0) {
       container.innerHTML = `<div class="boss-empty-state">No bosses yet.<br>Add one in ⚙ Config!</div>`;
@@ -226,7 +232,7 @@ const UI = {
 
   getSelectedBosses() {
     const val = document.getElementById('selectedBossIndex').value;
-    const all = [...PRESET_BOSSES, ...Config.bosses];
+    const all = [...Presets, ...Config.bosses];
     if (val === 'all') return all;
     const idx = parseInt(val);
     return all[idx] ? [all[idx]] : all;
@@ -286,7 +292,7 @@ const UI = {
 
 // ── Shop interaction ──────────────────────
 
-const ShopUI = {
+export const ShopUI = {
   buy(id) {
     const result = Shop.purchase(id);
     const el = document.getElementById('shopStatus');
@@ -305,16 +311,16 @@ const ShopUI = {
   },
 };
 
-function openShop() {
+export function openShop() {
   if (!Player.shopUnlocked) return;
   UI.renderShop();
   UI.showScreen('shop-screen');
 }
-function openQuests() {
+export function openQuests() {
   if (!Player.questsUnlocked) return;
   UI.renderQuests();
   UI.showScreen('quests-screen');
 }
-function goToTitle() {
+export function goToTitle() {
   UI.showTitleScreen();
 }

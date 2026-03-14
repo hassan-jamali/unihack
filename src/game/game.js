@@ -1,3 +1,17 @@
+import { Config, _saveConfig } from '../core/config.js';
+import { State } from '../core/state.js';
+import { Player } from './player.js';
+import { UI } from '../ui/ui.js';
+import { AI } from '../ai/ai.js';
+import { Presets } from './presets.js';
+import { Shop } from '../ui/shop.js';
+import { sleep, triggerAnim, cheat, shuffle } from '../core/utils.js';
+
+window.startGame = startGame;
+window.restartGame = restartGame;
+window.selectAnswer = selectAnswer;
+window.cheat = cheat;
+
 /* ═══════════════════════════════════════════
    game.js — Core game logic
    ═══════════════════════════════════════════ */
@@ -218,6 +232,6 @@ const Game = {
   },
 };
 
-function startGame()       { Game.start();            }
-function restartGame()     { Game.restart();          }
-function selectAnswer(idx) { Game.resolveAnswer(idx); }
+export function startGame()       { Game.start();            }
+export function restartGame()     { Game.restart();          }
+export function selectAnswer(idx) { Game.resolveAnswer(idx); }

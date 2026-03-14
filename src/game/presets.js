@@ -51,3 +51,5 @@ const PRESET_BOSSES = [
     preset:    true,
   },
 ];
+
+export const Presets = PRESET_BOSSES;

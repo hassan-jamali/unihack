@@ -32,25 +32,26 @@
   image-rendering: pixelated;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
 body {
   background: var(--bg-dark);
   font-family: var(--font-pixel);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   overflow: hidden;
 }
 
 .game-container {
-  width: min(95vw, 900px);
-  height: min(95vh, 680px);
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: #1a1a55;
-  border: 4px solid #2a2a4a;
-  border-radius: 8px;
-  box-shadow: 0 0 0 3px #111, 0 0 40px rgba(0,0,0,0.6);
   position: relative;
   overflow: hidden;
 }

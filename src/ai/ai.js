@@ -3,7 +3,11 @@
    Falls back to hardcoded questions on error.
    ═══════════════════════════════════════════ */
 
-const AI = {
+import { Config } from '../core/config.js';
+import { State } from '../core/state.js';
+import { shuffle } from '../core/utils.js';
+
+export const AI = {
 
   _cache: {},
 
