@@ -5,16 +5,24 @@
 
 const AI = {
 
+  _cache: {},
+
   async fetchQuestions(boss) {
     /* Custom questions (from editor) — use them directly, no API call */
     if (boss._customQuestions && boss._customQuestions.length > 0) {
       return shuffle([...boss._customQuestions]);
     }
 
+    /* Return cached questions if available */
+    if (this._cache[boss.id]) {
+      return shuffle([...this._cache[boss.id]]);
+    }
+
     this._startLoader(boss.name);
     try {
       const rawText   = await this._callAPI(boss);
       const questions = this._parse(rawText);
+      this._cache[boss.id] = questions;
       return shuffle(questions);
     } catch (err) {
       console.warn('AI fetch failed, using fallback:', err.message);
@@ -40,7 +48,7 @@ Requirements:
 Respond with ONLY a raw JSON array. No explanation, no markdown, no code fences. Format:
 [{ "q": "Question?", "a": "Correct answer", "w": ["Wrong 1", "Wrong 2", "Wrong 3"] }]`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${Config.geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${Config.geminiApiKey}`;
 
     const response = await fetch(url, {
       method:  'POST',
