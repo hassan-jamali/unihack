@@ -1,28 +1,29 @@
 /* ═══════════════════════════════════════════
    multiplayer/server.js — Lobby & Room system
-   Uses BroadcastChannel for same-browser testing.
-   Swap channel layer for WebSockets for real cross-device play.
+   Uses WebSockets — works across devices.
+   Start the server: node ws-server.js
    ═══════════════════════════════════════════ */
 
-const AVATARS = ['🧑‍💻', '👾', '🤖', '🧙', '🦊', '🐉', '🎮', '🌟'];
-const COLORS  = ['#e94560', '#4ade80', '#60a5fa', '#f59e0b', '#a78bfa', '#f472b6', '#34d399', '#fb923c'];
+const AVATARS  = ['🧑‍💻', '👾', '🤖', '🧙', '🦊', '🐉', '🎮', '🌟'];
+const COLORS   = ['#e94560', '#4ade80', '#60a5fa', '#f59e0b', '#a78bfa', '#f472b6', '#34d399', '#fb923c'];
+const WS_URL   = 'wss://unihack.railway.internal'; // ← change to your server address for real cross-device play
 
 let mpState = {
   roomCode:   null,
   playerName: null,
   isHost:     false,
   playerId:   null,
-  channel:    null,
+  socket:     null,
   players:    [],
 };
 
-function _genCode()   { return Math.random().toString(36).toUpperCase().slice(2, 8); }
-function _genId()     { return Math.random().toString(36).slice(2, 10); }
-function _genName()   {
+function _genId()   { return Math.random().toString(36).slice(2, 10); }
+function _genName() {
   const adj  = ['Swift', 'Brave', 'Clever', 'Bold', 'Sharp', 'Quick', 'Wise', 'Sly'];
   const noun = ['Fox', 'Hawk', 'Wolf', 'Bear', 'Lion', 'Eagle', 'Tiger', 'Shark'];
   return adj[Math.floor(Math.random() * adj.length)] + noun[Math.floor(Math.random() * noun.length)];
 }
+function _genCode() { return Math.random().toString(36).toUpperCase().slice(2, 8); }
 
 export const Multiplayer = {
 
@@ -108,18 +109,16 @@ export const Multiplayer = {
     `;
 
     // ── Wire up buttons ──
-    container.querySelector('#mp-create-btn').onclick   = () => this._create();
+    container.querySelector('#mp-create-btn').onclick    = () => this._create();
     container.querySelector('#mp-show-join-btn').onclick = () => this._showJoin();
-    container.querySelector('#mp-back-btn').onclick     = () => this._back();
-    container.querySelector('#mp-join-btn').onclick     = () => this._join();
-    container.querySelector('#mp-start-btn').onclick    = () => this._startGame();
-    container.querySelector('#mp-leave-btn').onclick    = () => this._leave();
-    container.querySelector('#mp-code-box').onclick     = () => this._copyCode();
+    container.querySelector('#mp-back-btn').onclick      = () => this._back();
+    container.querySelector('#mp-join-btn').onclick      = () => this._join();
+    container.querySelector('#mp-start-btn').onclick     = () => this._startGame();
+    container.querySelector('#mp-leave-btn').onclick     = () => this._leave();
+    container.querySelector('#mp-code-box').onclick      = () => this._copyCode();
 
     const codeInput = container.querySelector('#mp-join-input');
-    codeInput.oninput = () => {
-      codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    };
+    codeInput.oninput   = () => { codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); };
     codeInput.onkeydown = (e) => { if (e.key === 'Enter') this._join(); };
   },
 
@@ -131,8 +130,44 @@ export const Multiplayer = {
     if (el) el.classList.add('active');
   },
 
-  _showJoin() { this._show('mpv-join'); setTimeout(() => document.getElementById('mp-join-input')?.focus(), 50); },
-  _back()     { this._show('mpv-home'); document.getElementById('mp-join-err').textContent = ''; },
+  _showJoin() {
+    this._show('mpv-join');
+    setTimeout(() => document.getElementById('mp-join-input')?.focus(), 50);
+  },
+
+  _back() {
+    this._show('mpv-home');
+    document.getElementById('mp-join-err').textContent = '';
+  },
+
+  // ── WebSocket connect ──
+
+  _connect(onOpen) {
+    this._setStatus('Connecting to server…', '#f59e0b');
+    const socket = new WebSocket(WS_URL);
+
+    socket.onopen = () => {
+      mpState.socket = socket;
+      onOpen(socket);
+    };
+
+    socket.onmessage = (e) => {
+      let msg;
+      try { msg = JSON.parse(e.data); } catch { return; }
+      this._handleMsg(msg);
+    };
+
+    socket.onclose = () => {
+      if (mpState.socket) {
+        this._setStatus('⚠ Disconnected from server.', '#e94560');
+        mpState.socket = null;
+      }
+    };
+
+    socket.onerror = () => {
+      this._setStatus('⚠ Could not connect to server. Is ws-server.js running?', '#e94560');
+    };
+  },
 
   // ── Create ──
 
@@ -142,15 +177,21 @@ export const Multiplayer = {
     mpState.isHost     = true;
     mpState.playerId   = _genId();
     mpState.playerName = _genName();
-    mpState.players    = [{ id: mpState.playerId, name: mpState.playerName, isHost: true, avatarIdx: 0 }];
 
-    mpState.channel = new BroadcastChannel('brainbattle_' + code);
-    mpState.channel.onmessage = (e) => this._handleMsg(e.data);
+    this._connect((socket) => {
+      socket.send(JSON.stringify({
+        type:      'JOIN_REQUEST',
+        code,
+        id:        mpState.playerId,
+        name:      mpState.playerName,
+        avatarIdx: 0,
+      }));
+    });
 
     document.getElementById('mp-code-display').textContent = code;
     document.getElementById('mp-role-badge').textContent   = '⭐ HOST';
-    this._renderPlayers();
-    this._setStatus('Waiting for players… share the room code!', '#60a5fa');
+    this._renderPlayers([{ id: mpState.playerId, name: mpState.playerName, isHost: true, avatarIdx: 0 }]);
+    this._setStatus('Connecting…', '#f59e0b');
     this._show('mpv-lobby');
   },
 
@@ -168,25 +209,23 @@ export const Multiplayer = {
     mpState.playerId   = _genId();
     mpState.playerName = _genName();
     const avatarIdx    = Math.floor(Math.random() * AVATARS.length);
-    mpState.players    = [{ id: mpState.playerId, name: mpState.playerName, isHost: false, avatarIdx }];
 
-    mpState.channel = new BroadcastChannel('brainbattle_' + code);
-    mpState.channel.onmessage = (e) => this._handleMsg(e.data);
-    mpState.channel.postMessage({ type: 'JOIN_REQUEST', id: mpState.playerId, name: mpState.playerName, avatarIdx });
+    this._connect((socket) => {
+      socket.send(JSON.stringify({
+        type: 'JOIN_REQUEST',
+        code,
+        id:        mpState.playerId,
+        name:      mpState.playerName,
+        avatarIdx,
+      }));
+    });
 
     document.getElementById('mp-code-display').textContent = code;
     document.getElementById('mp-role-badge').textContent   = '🎮 GUEST';
     document.getElementById('mp-start-btn').disabled       = true;
-    this._renderPlayers();
-    this._setStatus('Connecting… waiting for host.', '#f59e0b');
+    this._renderPlayers([{ id: mpState.playerId, name: mpState.playerName, isHost: false, avatarIdx }]);
+    this._setStatus('Connecting…', '#f59e0b');
     this._show('mpv-lobby');
-
-    // Timeout if no host responds
-    setTimeout(() => {
-      if (mpState.players.length === 1) {
-        this._setStatus('⚠ No host found. Check the code and try again.', '#e94560');
-      }
-    }, 4000);
   },
 
   // ── Message handler ──
@@ -194,27 +233,26 @@ export const Multiplayer = {
   _handleMsg(msg) {
     if (!msg?.type) return;
 
-    if (msg.type === 'JOIN_REQUEST' && mpState.isHost) {
-      if (mpState.players.length >= 4) return;
-      if (mpState.players.find(p => p.id === msg.id)) return;
-      mpState.players.push({ id: msg.id, name: msg.name, isHost: false, avatarIdx: msg.avatarIdx });
-      this._renderPlayers();
-      mpState.channel.postMessage({ type: 'ROOM_STATE', players: mpState.players, hostId: mpState.playerId });
-      this._setStatus(`${msg.name} joined!`, '#4ade80');
-      if (mpState.players.length >= 2) document.getElementById('mp-start-btn').disabled = false;
-    }
-
-    if (msg.type === 'ROOM_STATE' && !mpState.isHost) {
+    if (msg.type === 'ROOM_STATE') {
       mpState.players = msg.players;
-      this._renderPlayers();
-      this._setStatus('Connected! Waiting for host to start…', '#4ade80');
+      // Re-detect if we are host (server is source of truth)
+      const me = msg.players.find(p => p.id === mpState.playerId);
+      if (me) {
+        mpState.isHost = me.isHost;
+        document.getElementById('mp-role-badge').textContent = me.isHost ? '⭐ HOST' : '🎮 GUEST';
+        document.getElementById('mp-start-btn').disabled = !me.isHost || msg.players.length < 2;
+      }
+      this._renderPlayers(msg.players);
+      this._setStatus(
+        msg.players.length >= 2
+          ? (mpState.isHost ? 'Ready! Hit Start when everyone is in.' : 'Connected! Waiting for host to start…')
+          : 'Waiting for players… share the room code!',
+        '#4ade80'
+      );
     }
 
-    if (msg.type === 'PLAYER_LEFT') {
-      mpState.players = mpState.players.filter(p => p.id !== msg.id);
-      this._renderPlayers();
-      if (mpState.players.length < 2) document.getElementById('mp-start-btn').disabled = true;
-      this._setStatus(`${msg.name} left the room.`, '#f59e0b');
+    if (msg.type === 'ERROR') {
+      this._setStatus('⚠ ' + msg.msg, '#e94560');
     }
 
     if (msg.type === 'GAME_START') {
@@ -225,15 +263,16 @@ export const Multiplayer = {
 
   // ── Render players ──
 
-  _renderPlayers() {
+  _renderPlayers(players) {
     const list  = document.getElementById('mp-player-list');
     const count = document.getElementById('mp-player-count');
     if (!list || !count) return;
-    count.textContent = mpState.players.length;
-    list.innerHTML = mpState.players.map((p, i) => `
+    mpState.players = players;
+    count.textContent = players.length;
+    list.innerHTML = players.map((p, i) => `
       <div class="mp-player-row">
         <div class="mp-avatar" style="background:${COLORS[i % COLORS.length]}22;">${AVATARS[p.avatarIdx ?? i % AVATARS.length]}</div>
-        <span style="font-size:7px;color:#f0f0f0;flex:1;">${p.name}</span>
+        <span style="font-size:7px;color:#f0f0f0;flex:1;">${p.name}${p.id === mpState.playerId ? ' <span style="font-size:5px;color:#aaa">(you)</span>' : ''}</span>
         ${p.isHost ? '<span class="mp-tag">HOST</span>' : ''}
         <div class="mp-dot"></div>
       </div>
@@ -260,25 +299,23 @@ export const Multiplayer = {
   },
 
   _startGame() {
-    if (!mpState.isHost || mpState.players.length < 2) return;
-    mpState.channel.postMessage({ type: 'GAME_START' });
+    if (!mpState.isHost || mpState.players.length < 2 || !mpState.socket) return;
+    mpState.socket.send(JSON.stringify({ type: 'GAME_START' }));
     this._setStatus('▶ Starting…', '#4ade80');
-    setTimeout(() => this._launchGame(), 800);
   },
 
   _launchGame() {
-    // Hook into your existing startGame() here.
-    // mpState.players is the full player list.
     console.log('🎮 Multiplayer game start! Players:', mpState.players);
     if (typeof window.startGame === 'function') window.startGame();
   },
 
   _leave() {
-    if (mpState.channel) {
-      mpState.channel.postMessage({ type: 'PLAYER_LEFT', id: mpState.playerId, name: mpState.playerName });
-      mpState.channel.close();
+    if (mpState.socket) {
+      mpState.socket.send(JSON.stringify({ type: 'PLAYER_LEFT' }));
+      mpState.socket.close();
+      mpState.socket = null;
     }
-    mpState = { roomCode: null, playerName: null, isHost: false, playerId: null, channel: null, players: [] };
+    mpState = { roomCode: null, playerName: null, isHost: false, playerId: null, socket: null, players: [] };
     this._show('mpv-home');
   },
 
