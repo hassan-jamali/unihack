@@ -7,6 +7,7 @@ import { cheat, _initCheats } from './core/utils.js';
 import { startGame, restartGame, selectAnswer } from './game/game.js';
 import { openShop, ShopUI, goToTitle, goBack } from './ui/ui.js';
 import { Editor } from './ui/editor.js';
+import { Multiplayer } from './multiplayer/server.js';
 
 // Wire up lazy cheat references
 _initCheats(Player, UI);

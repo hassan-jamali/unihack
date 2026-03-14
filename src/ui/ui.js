@@ -12,9 +12,7 @@ import { Transitions } from './transitions.js';
 
 export const UI = {
 
-  // ── Screen history for back button ──────────
-  
-  screenHistory: ['title-screen'],
+
   
   // ── Screens ──────────────────────────────
 
@@ -394,6 +392,12 @@ export const ShopUI = {
     UI.renderShop();
   },
 };
+
+export function openMultiplayer() {
+  UI.showScreen('multiplayer-screen');
+  Multiplayer.mount(document.getElementById('mp-root'));
+}
+window.openMultiplayer = openMultiplayer;
 
 export function openShop() {
   if (!Player.shopUnlocked) return;
