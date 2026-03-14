@@ -11,6 +11,8 @@ import { triggerAnim, sleep } from '../core/utils.js';
 
 export const UI = {
 
+
+  
   // ── Screens ──────────────────────────────
 
   showScreen(id) {
@@ -310,6 +312,12 @@ export const ShopUI = {
     UI.renderShop();
   },
 };
+
+export function openMultiplayer() {
+  UI.showScreen('multiplayer-screen');
+  Multiplayer.mount(document.getElementById('mp-root'));
+}
+window.openMultiplayer = openMultiplayer;
 
 export function openShop() {
   if (!Player.shopUnlocked) return;

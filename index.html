@@ -35,6 +35,7 @@
         </div>
         <div class="hud-right">
           <span id="hudCoins" class="hud-coins">🪙 0</span>
+          <button id="navMulti" class="nav-btn" onclick="openMultiplayer()">Multiplayer</button>
           <button id="navShop" class="nav-btn" onclick="openShop()" style="display:none">Shop</button>
           <button id="navQuests" class="nav-btn" onclick="openQuests()" style="display:none">Quests</button>
         </div>
@@ -139,6 +140,15 @@
       </div>
       <div id="questList" class="quest-list"></div>
     </div>
+
+
+  <div id="multiplayer-screen" class="screen">
+    <div class="meta-header">
+      <button class="meta-back" onclick="goToTitle()">BACK</button>
+      <div class="meta-title">MULTIPLAYER</div>
+    </div>
+    <div id="mp-root" style="padding:16px;overflow-y:auto;flex:1;"></div>
+  </div>
 
     <!-- ═══════════ EDITOR SCREEN ═══════════ -->
     <div id="editor-screen" class="screen">
