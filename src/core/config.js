@@ -17,7 +17,7 @@ const CONFIG_DEFAULTS = {
 };
 
 /* Merge saved config over defaults */
-function _loadConfig() {
+export function _loadConfig() {
   try {
     const saved = localStorage.getItem(CONFIG_STORAGE_KEY);
     if (saved) {
@@ -36,7 +36,7 @@ function _loadConfig() {
   return { ...CONFIG_DEFAULTS };
 }
 
-function _saveConfig(cfg) {
+export function _saveConfig(cfg) {
   try {
     localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(cfg));
   } catch (e) {
@@ -44,8 +44,8 @@ function _saveConfig(cfg) {
   }
 }
 
-function _resetConfig() {
+export function _resetConfig() {
   try { localStorage.removeItem(CONFIG_STORAGE_KEY); } catch (e) {}
 }
 
-const Config = _loadConfig();
+export const Config = _loadConfig();

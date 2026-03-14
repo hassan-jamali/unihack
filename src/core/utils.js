@@ -3,7 +3,11 @@
    No dependencies. No side effects.
    ═══════════════════════════════════════════ */
 
-function shuffle(arr) {
+// Player and UI are injected lazily to break circular dependency
+let _Player, _UI;
+export function _initCheats(player, ui) { _Player = player; _UI = ui; }
+
+export function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -12,11 +16,11 @@ function shuffle(arr) {
   return a;
 }
 
-function sleep(ms) {
+export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function triggerAnim(el, cls, duration) {
+export function triggerAnim(el, cls, duration) {
   el.classList.remove(cls);
   void el.offsetWidth;
   el.classList.add(cls);
@@ -26,65 +30,65 @@ function triggerAnim(el, cls, duration) {
 /* ════════════════════════════════════════
    DEV CHEATS — type in browser console
    ════════════════════════════════════════
-   cheat.xp(500)       — give yourself XP
-   cheat.coins(200)    — give yourself coins
-   cheat.level(5)      — set level directly
-   cheat.unlockShop()  — unlock the shop now
-   cheat.unlockQuests()— unlock quests now
-   cheat.reset()       — wipe all player data
-   cheat,unlockGameboy() - unlock gameboy now
+   cheat.xp(500)        — give yourself XP
+   cheat.coins(200)     — give yourself coins
+   cheat.level(5)       — set level directly
+   cheat.unlockShop()   — unlock the shop now
+   cheat.unlockQuests() — unlock quests now
+   cheat.unlockGameboy()— unlock gameboy now
+   cheat.reset()        — wipe all player data
    ════════════════════════════════════════ */
-const cheat = {
+export const cheat = {
   xp(amount = 100) {
-    const r = Player.awardXP(amount);
-    UI.updateHUD();
+    const r = _Player.awardXP(amount);
+    _UI.updateHUD();
     console.log(`+${amount} XP → Level ${r.newLevel}${r.levelled ? ' (LEVEL UP!)' : ''}`);
   },
   coins(amount = 100) {
-    Player.awardCoins(amount);
-    UI.updateHUD();
-    console.log(`+${amount} coins → Total: ${Player.coins}`);
+    _Player.awardCoins(amount);
+    _UI.updateHUD();
+    console.log(`+${amount} coins → Total: ${_Player.coins}`);
   },
   level(n) {
-    Player.data.level = n;
-    Player.data.xp    = Player.xpForLevel(n);
-    if (n >= 5) Player.data.shopUnlocked = true;
-    Player.save();
-    UI.updateHUD();
+    _Player.data.level = n;
+    _Player.data.xp    = _Player.xpForLevel(n);
+    if (n >= 5) _Player.data.shopUnlocked = true;
+    _Player.save();
+    _UI.updateHUD();
     console.log(`Set to Level ${n}`);
   },
   unlockShop() {
-    Player.data.shopUnlocked = true;
-    Player.save();
-    UI.updateHUD();
+    _Player.data.shopUnlocked = true;
+    _Player.save();
+    _UI.updateHUD();
     console.log('Shop unlocked!');
   },
   unlockGameboy() {
-  Player.data.gameboyUnlocked = true;
-  Player.save();
-  UI.updateHUD();
-  console.log('Game Boy mode unlocked!');
-},
+    _Player.data.gameboyUnlocked = true;
+    _Player.save();
+    _UI.updateHUD();
+    console.log('Game Boy mode unlocked!');
+  },
   unlockQuests() {
-    Player.data.questsUnlocked = true;
-    Player.save();
-    UI.updateHUD();
+    _Player.data.questsUnlocked = true;
+    _Player.save();
+    _UI.updateHUD();
     console.log('Quests unlocked!');
   },
   reset() {
     localStorage.removeItem('brainBattle_player');
-    Player._data = null;
-    UI.updateHUD();
+    _Player._data = null;
+    _UI.updateHUD();
     console.log('Player data reset.');
   },
   status() {
     console.table({
-      level:  Player.level,
-      xp:     Player.xp,
-      coins:  Player.coins,
-      shop:   Player.shopUnlocked,
-      quests: Player.questsUnlocked,
-      items:  Player.data.inventory.join(', ') || 'none',
+      level:  _Player.level,
+      xp:     _Player.xp,
+      coins:  _Player.coins,
+      shop:   _Player.shopUnlocked,
+      quests: _Player.questsUnlocked,
+      items:  _Player.data.inventory.join(', ') || 'none',
     });
   },
 };

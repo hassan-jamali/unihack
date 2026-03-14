@@ -2,7 +2,10 @@
    state.js — Runtime game state
    ═══════════════════════════════════════════ */
 
-const State = {
+import { Config } from './config.js';
+import { Player } from '../game/player.js';
+
+export const State = {
   bossIndex:       0,
   bossHp:          0,
   playerHp:        0,

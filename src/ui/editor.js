@@ -5,7 +5,11 @@
 
 
 
-const Editor = {
+import { Config, _saveConfig } from '../core/config.js';
+import { AI } from '../ai/ai.js';
+import { UI } from './ui.js';
+
+export const Editor = {
 
   _activeBossIndex: 0,
 
@@ -77,7 +81,7 @@ const Editor = {
   // ══════════════════════════════════════════
 
   async processPdf() {
-    const { preprocessPDF } = await import("./ai/rag.js");
+    const { preprocessPDF } = await import("../ai/rag.js");
       
     const boss = this._activeBoss;
     if (!boss) {
@@ -337,6 +341,7 @@ const Editor = {
 };
 
 /* Global bindings */
+window.Editor = Editor;
 window.openEditor = function () { Editor.open(); }
 window.closeEditor = function () { Editor.close(); }
 window.edSwitchTab = function (t) { Editor._switchTab(t); }

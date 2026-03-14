@@ -8,7 +8,10 @@ const PLAYER_KEY = 'brainBattle_player';
 const XP_PER_LEVEL = [0, 0, 100, 250, 450, 700, 1000, 1400, 1900, 2500, 3200];
 // Level N requires XP_PER_LEVEL[N] total XP. Level 10 = max shown; scales beyond.
 
-const Player = {
+import { Config } from '../core/config.js';
+import { Shop } from '../ui/shop.js';
+
+export const Player = {
 
   // ── Persistence ───────────────────────────
 

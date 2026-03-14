@@ -5,6 +5,11 @@
    scripts have loaded.
    ═══════════════════════════════════════════ */
 
+import { UI, goToTitle } from '../ui/ui.js';
+import { startGame, restartGame } from '../game/game.js';
+import { Player } from '../game/player.js';
+import { Config } from '../core/config.js';
+
 /* ─────────────────────────────────────────
    HELPERS
    ───────────────────────────────────────── */
