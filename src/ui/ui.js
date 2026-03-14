@@ -113,9 +113,15 @@ export const UI = {
     el.style.opacity   = '1';
     el.style.transform = '';
     if (boss.image) {
-      el.innerHTML = `<img src="${boss.image}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.6))">`;
+      // Only set image if element is empty (no animation running)
+      if (!el.innerHTML || el.innerHTML.trim() === '') {
+        el.innerHTML = `<img src="${boss.image}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.6))">`;
+      }
     } else {
-      el.innerHTML = boss.emoji || '❓';
+      // Don't clear if animation system is running
+      if (!el.innerHTML || el.innerHTML.trim() === '') {
+        el.innerHTML = ''; // Only set empty if already empty
+      }
     }
     return el;
   },

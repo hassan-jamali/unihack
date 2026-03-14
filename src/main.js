@@ -50,8 +50,12 @@ function initIdleAnimation() {
         if (battleScreen && battleScreen.classList.contains('active')) {
           // Start idle animation
           setTimeout(() => {
+            // Initialize player idle animation
             playSpriteAnimation('src/assets/player/idle.png', 10, 96, 96, 'playerSprite');
-          }, 1000);
+            
+            // Initialize boss idle animation
+            initBossIdleAnimation();
+          }, 100);
         }
       }
     });
