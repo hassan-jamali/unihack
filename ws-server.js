@@ -29,6 +29,18 @@ wss.on('connection', (ws) => {
     let msg;
     try { msg = JSON.parse(raw); } catch { return; }
 
+
+    if (msg.type === 'RELAY') {
+        if (!playerRoom) return;
+    const room = rooms.get(playerRoom);
+        if (!room) return;
+    const str = JSON.stringify({ type: 'RELAY', payload: msg.payload });
+    for (const { ws: peer } of room.players.values()) {
+        if (peer.readyState === peer.OPEN) peer.send(str);  // ← no peer !== ws exclusion
+    }
+    return;
+    }
+
     // ── LIST_ROOMS ──
     if (msg.type === 'LIST_ROOMS') {
       const publicRooms = [];
