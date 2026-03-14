@@ -8,6 +8,7 @@ import { State } from '../core/state.js';
 import { Presets } from '../game/presets.js';
 import { Shop } from './shop.js';
 import { triggerAnim, sleep } from '../core/utils.js';
+import { Transitions } from './transitions.js';
 
 export const UI = {
 
@@ -15,17 +16,68 @@ export const UI = {
   
   // ── Screens ──────────────────────────────
 
-  showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+  async showScreen(id, transition = 'fade') {
+    const currentScreen = this.screenHistory[this.screenHistory.length - 1];
+    const targetScreen = document.getElementById(id);
+    
+    if (!targetScreen) return;
+    
+    // Don't transition if already on this screen
+    if (currentScreen === id) return;
+    
+    // Add to history (but don't duplicate)
+    if (this.screenHistory[this.screenHistory.length - 1] !== id) {
+      this.screenHistory.push(id);
+    }
+    
+    // Perform transition
+    switch (transition) {
+      case 'slide-left':
+        await Transitions.slideLeft(currentScreen, id);
+        break;
+      case 'slide-right':
+        await Transitions.slideRight(currentScreen, id);
+        break;
+      case 'slide-up':
+        await Transitions.slideUp(currentScreen, id);
+        break;
+      case 'slide-down':
+        await Transitions.slideDown(currentScreen, id);
+        break;
+      default:
+        await Transitions.fade(currentScreen, id);
+    }
+    
+    // Update back button visibility
+    this.updateBackButton();
   },
+  
+  async goBack() {
+    // Always go back to title screen
+    await this.showScreen('title-screen', 'slide-right');
+  },
+  
+  updateBackButton() {
+    const backBtn = document.getElementById('backButton');
+    if (!backBtn) return;
+    
+    // Show back button on all screens except title screen
+    const currentScreen = this.screenHistory[this.screenHistory.length - 1];
+    if (currentScreen === 'title-screen') {
+      backBtn.style.display = 'none';
+    } else {
+      backBtn.style.display = 'flex';
+    }
+  },
+  
   showBattleScreen() { 
-    this.showScreen('battle-screen'); 
+    this.showScreen('battle-screen', 'slide-left'); 
   },
+  
   showTitleScreen()  {
     this.renderBossCards();
     this.updateHUD();
-    this.showScreen('title-screen');
+    this.showScreen('title-screen', 'slide-right');
   },
 
   // ── Global HUD (level/xp/coins shown on title) ──
@@ -137,10 +189,38 @@ export const UI = {
     this.hideAnswers();
     const el = document.getElementById('dialogueText');
     el.textContent = '';
+    
+    let skipped = false;
+    let currentText = '';
+    
+    const skipHandler = (e) => {
+      if (!skipped) {
+        e.preventDefault();
+        e.stopPropagation();
+        skipped = true;
+        el.textContent = text;
+        document.body.style.cursor = 'default';
+        document.removeEventListener('click', skipHandler, true);
+      }
+    };
+    
+    // Add global click handler to skip animation anywhere on screen
+    document.body.style.cursor = 'pointer';
+    document.addEventListener('click', skipHandler, true); // Use capture to ensure it fires first
+    
     for (const ch of text) {
-      el.textContent += ch;
+      if (skipped) break; // Exit loop immediately when skipped
+      currentText += ch;
+      el.textContent = currentText;
       await sleep(ch === '\n' ? 80 : msPerChar);
     }
+    
+    // Clean up event listener and reset cursor
+    document.removeEventListener('click', skipHandler, true);
+    document.body.style.cursor = 'default';
+    
+    // If skipped, return immediately without any additional delays
+    if (skipped) return;
   },
 
   // ── Answers ───────────────────────────────
@@ -322,13 +402,19 @@ window.openMultiplayer = openMultiplayer;
 export function openShop() {
   if (!Player.shopUnlocked) return;
   UI.renderShop();
-  UI.showScreen('shop-screen');
+  UI.showScreen('shop-screen', 'slide-left');
 }
+
 export function openQuests() {
   if (!Player.questsUnlocked) return;
   UI.renderQuests();
-  UI.showScreen('quests-screen');
+  UI.showScreen('quests-screen', 'slide-left');
 }
+
 export function goToTitle() {
   UI.showTitleScreen();
+}
+
+export function goBack() {
+  UI.goBack();
 }
