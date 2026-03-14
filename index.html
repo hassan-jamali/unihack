@@ -11,14 +11,11 @@
 </head>
 <body>
 
-  <!-- Hidden field to track which boss the player selected -->
   <input type="hidden" id="selectedBossIndex" value="all">
 
   <div class="game-container">
 
-    <!-- ═══════════════════════════════════
-         TITLE SCREEN
-    ════════════════════════════════════ -->
+    <!-- ═══════════ TITLE SCREEN ═══════════ -->
     <div id="title-screen" class="screen active">
 
       <div class="title-banner">
@@ -26,33 +23,40 @@
         <div class="title-sub">Answer · Attack · Advance</div>
       </div>
 
-      <div class="choose-label">Choose your challenger</div>
+      <!-- Global HUD bar -->
+      <div class="global-hud">
+        <div class="hud-left">
+          <span id="hudLevel" class="hud-level">LV.1</span>
+          <div class="hud-xp-track"><div class="hud-xp-fill" id="hudXpFill"></div></div>
+        </div>
+        <div class="hud-right">
+          <span id="hudCoins" class="hud-coins">🪙 0</span>
+          <button id="navShop"   class="nav-btn" onclick="openShop()"   style="display:none">🛒 Shop</button>
+          <button id="navQuests" class="nav-btn" onclick="openQuests()" style="display:none">📜 Quests</button>
+        </div>
+      </div>
 
-      <!-- Boss cards rendered by UI.renderBossCards() on load -->
-      <div class="boss-preview" id="bossCardsContainer"></div>
-
-      <button class="btn-start" onclick="startGame()">▶ START GAME</button>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;z-index:1">
+        <div class="choose-label">Choose your challenger</div>
+        <div class="boss-preview" id="bossCardsContainer"></div>
+        <button class="btn-start" onclick="startGame()">▶ START GAME</button>
+      </div>
 
       <div class="title-footer">
-        <span class="title-version">v2.0 · Brain Battle Edition</span>
-        <button class="btn-config" onclick="openEditor()" title="Config Editor">⚙ Config</button>
+        <span class="title-version">v3.0 · Brain Battle</span>
+        <button class="btn-config" onclick="openEditor()">⚙ Config</button>
       </div>
 
     </div>
 
-
-    <!-- ═══════════════════════════════════
-         BATTLE SCREEN
-    ════════════════════════════════════ -->
+    <!-- ═══════════ BATTLE SCREEN ═══════════ -->
     <div id="battle-screen" class="screen">
-
       <div class="arena">
         <div class="arena-bg"></div>
         <div class="arena-type-overlay" id="typeOverlay"></div>
         <div class="platform-boss"></div>
         <div class="platform-player"></div>
 
-        <!-- Boss HUD -->
         <div class="hud-boss">
           <div class="hud-name-row">
             <span class="hud-name" id="bossName">???</span>
@@ -68,7 +72,6 @@
         <div class="boss-sprite" id="bossSprite">❓</div>
         <div class="player-sprite" id="playerSprite">🧑‍💻</div>
 
-        <!-- Player HUD -->
         <div class="hud-player">
           <div class="hud-name-row">
             <span class="hud-name" id="playerHudName">HERO</span>
@@ -80,12 +83,11 @@
           <div class="hp-numbers" id="playerHpNumbers">100 / 100</div>
         </div>
 
-        <!-- Win / Lose overlay -->
         <div class="battle-overlay" id="battleOverlay">
           <div class="overlay-title" id="overlayTitle">YOU WIN!</div>
           <div class="overlay-sub" id="overlaySub"></div>
           <button class="btn-restart" onclick="restartGame()">▶ PLAY AGAIN</button>
-          <button class="btn-restart btn-restart-secondary" onclick="UI.showTitleScreen()">↩ TITLE SCREEN</button>
+          <button class="btn-restart btn-restart-secondary" onclick="goToTitle()">↩ TITLE SCREEN</button>
         </div>
       </div>
 
@@ -105,28 +107,41 @@
           <button class="answer-btn" id="btn3" onclick="selectAnswer(3)"></button>
         </div>
       </div>
+    </div>
 
-    </div><!-- end #battle-screen -->
+    <!-- ═══════════ SHOP SCREEN ═══════════ -->
+    <div id="shop-screen" class="screen">
+      <div class="meta-header">
+        <button class="meta-back" onclick="goToTitle()">← BACK</button>
+        <div class="meta-title">🛒 SHOP</div>
+        <span id="shopCoinsDisplay" class="hud-coins">🪙 0</span>
+      </div>
+      <div id="shopStatus" class="shop-status"></div>
+      <div id="shopGrid" class="shop-grid"></div>
+    </div>
 
+    <!-- ═══════════ QUESTS SCREEN ═══════════ -->
+    <div id="quests-screen" class="screen">
+      <div class="meta-header">
+        <button class="meta-back" onclick="goToTitle()">← BACK</button>
+        <div class="meta-title">📜 QUESTS</div>
+        <span class="hud-coins" style="font-size:6px;color:#aaa">Resets daily</span>
+      </div>
+      <div id="questList" class="quest-list"></div>
+    </div>
 
-    <!-- ═══════════════════════════════════
-         QUESTION EDITOR SCREEN
-    ════════════════════════════════════ -->
+    <!-- ═══════════ EDITOR SCREEN ═══════════ -->
     <div id="editor-screen" class="screen">
-
-      <!-- Header -->
       <div class="ed-header">
         <div class="ed-title">📝 QUESTION EDITOR</div>
         <button class="ed-close-btn" onclick="closeEditor()">✕ BACK</button>
       </div>
 
-      <!-- Boss selector -->
       <div class="ed-boss-bar">
         <span class="ed-boss-label">Boss:</span>
         <div id="edBossTabs" class="ed-boss-tabs"></div>
       </div>
 
-      <!-- Main tabs -->
       <div class="ed-tabs">
         <button class="ed-tab active" data-tab="bosses"   onclick="edSwitchTab('bosses')">👤 Bosses</button>
         <button class="ed-tab"        data-tab="pdf"      onclick="edSwitchTab('pdf')">📄 From PDF</button>
@@ -136,27 +151,20 @@
 
       <!-- Bosses Panel -->
       <div class="ed-panel active" data-panel="bosses">
-        <div class="ed-panel-inner" style="max-width:100%;flex-direction:row;gap:0;padding:0;height:100%">
-
-          <!-- Left: existing bosses -->
-          <div style="flex:1;border-right:2px solid #1a1a3a;display:flex;flex-direction:column;min-width:0">
-            <div class="ed-list-header">YOUR BOSSES</div>
+        <div class="ed-bosses-layout">
+          <div class="ed-bosses-list">
+            <div class="ed-list-header">ALL BOSSES</div>
             <div id="bossManageList" class="ed-question-list" style="max-height:none;flex:1"></div>
           </div>
-
-          <!-- Right: add new boss -->
-          <div style="width:240px;flex-shrink:0;padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto">
+          <div class="ed-bosses-form">
             <div class="ed-add-header">+ Add a boss</div>
-
             <label class="ed-file-label" style="height:80px;flex-direction:column;gap:4px" for="newBossImgInput">
-              <img id="bossImgPreview" style="display:none;width:60px;height:60px;object-fit:cover;border-radius:3px">
+              <img id="bossImgPreview" style="display:none;width:56px;height:56px;object-fit:cover;border-radius:3px">
               <span id="bossImgLabel" style="font-size:5px">📷 Click to upload image</span>
               <input type="file" id="newBossImgInput" accept="image/*" onchange="previewBossImage(this)">
             </label>
-
             <input type="text" id="newBossName"  class="ed-input" placeholder="Boss name">
             <input type="text" id="newBossType"  class="ed-input" placeholder="Topic (e.g. BIOLOGY)">
-
             <div class="ed-row" style="gap:6px">
               <select id="newBossDiff" class="ed-input" style="flex:1">
                 <option value="easy">Easy</option>
@@ -165,39 +173,30 @@
               </select>
               <input type="number" id="newBossHp" class="ed-input ed-input-sm" value="100" min="20" max="500" title="Max HP">
             </div>
-
             <div class="ed-row" style="gap:6px;align-items:center">
               <label class="ed-label" style="min-width:auto">Colour</label>
               <input type="color" id="newBossColor" value="#60a5fa" style="width:36px;height:28px;border:2px solid #2a2a4a;background:#050510;cursor:pointer;border-radius:3px">
             </div>
-
             <button class="ed-btn-primary" onclick="addBoss()">+ Add Boss</button>
             <div id="bossStatus" class="ed-status"></div>
           </div>
-
         </div>
       </div>
 
       <!-- PDF Panel -->
       <div class="ed-panel" data-panel="pdf">
         <div class="ed-panel-inner">
-          <p class="ed-hint">Upload a PDF (notes, textbook, etc.) and AI will generate questions from it for the selected boss.</p>
-
+          <p class="ed-hint">Upload a PDF and AI will generate questions for the selected boss.</p>
           <label class="ed-file-label" for="pdfFileInput">
             <span id="pdfFileName">📂 Click to choose a PDF</span>
             <input type="file" id="pdfFileInput" accept=".pdf"
               onchange="document.getElementById('pdfFileName').textContent = this.files[0]?.name || '📂 Click to choose a PDF'">
           </label>
-
           <div class="ed-row">
             <label class="ed-label">Questions to generate</label>
-            <input type="number" id="pdfQuestionCount" class="ed-input ed-input-sm"
-                   value="8" min="1" max="20">
+            <input type="number" id="pdfQuestionCount" class="ed-input ed-input-sm" value="8" min="1" max="20">
           </div>
-
-          <button class="ed-btn-primary" id="btnProcessPdf" onclick="processPdf()">
-            ⚡ Generate Questions
-          </button>
+          <button class="ed-btn-primary" id="btnProcessPdf" onclick="processPdf()">⚡ Generate Questions</button>
           <div id="pdfStatus" class="ed-status"></div>
         </div>
       </div>
@@ -205,16 +204,12 @@
       <!-- Manual Panel -->
       <div class="ed-panel" data-panel="manual">
         <div class="ed-panel-inner ed-panel-manual">
-
-          <!-- Question list -->
           <div class="ed-list-header">Current questions</div>
           <div id="manualQuestionList" class="ed-question-list"></div>
-
-          <!-- Add form -->
           <div class="ed-add-form">
             <div class="ed-add-header">+ Add a question</div>
-            <input  type="text" id="manualQ"  class="ed-input" placeholder="Question text" onkeydown="if(event.key==='Enter')document.getElementById('manualA').focus()">
-            <input  type="text" id="manualA"  class="ed-input ed-input-correct" placeholder="✓ Correct answer" onkeydown="if(event.key==='Enter')document.getElementById('manualW1').focus()">
+            <input type="text" id="manualQ"  class="ed-input" placeholder="Question text" onkeydown="if(event.key==='Enter')document.getElementById('manualA').focus()">
+            <input type="text" id="manualA"  class="ed-input ed-input-correct" placeholder="✓ Correct answer" onkeydown="if(event.key==='Enter')document.getElementById('manualW1').focus()">
             <div class="ed-wrongs-row">
               <input type="text" id="manualW1" class="ed-input ed-input-wrong" placeholder="✗ Wrong 1" onkeydown="if(event.key==='Enter')document.getElementById('manualW2').focus()">
               <input type="text" id="manualW2" class="ed-input ed-input-wrong" placeholder="✗ Wrong 2" onkeydown="if(event.key==='Enter')document.getElementById('manualW3').focus()">
@@ -223,38 +218,34 @@
             <button class="ed-btn-primary" onclick="addQuestion()">+ Add Question</button>
             <div id="manualStatus" class="ed-status"></div>
           </div>
-
         </div>
       </div>
 
       <!-- Settings Panel -->
       <div class="ed-panel" data-panel="settings">
         <div class="ed-panel-inner">
-          <p class="ed-hint">These settings affect AI question generation.</p>
-
+          <p class="ed-hint">AI question generation settings.</p>
           <div class="ed-row">
             <label class="ed-label">Gemini API Key</label>
-            <input type="password" id="settingsApiKey" class="ed-input"
-                   placeholder="AIza...">
+            <input type="password" id="settingsApiKey" class="ed-input" placeholder="AIza...">
           </div>
-
           <div class="ed-row">
             <label class="ed-label">Questions per AI batch</label>
-            <input type="number" id="settingsQCount" class="ed-input ed-input-sm"
-                   value="8" min="1" max="20">
+            <input type="number" id="settingsQCount" class="ed-input ed-input-sm" value="8" min="1" max="20">
           </div>
-
           <button class="ed-btn-primary" onclick="saveSettings()">💾 Save Settings</button>
           <div id="settingsStatus" class="ed-status"></div>
         </div>
       </div>
-
-    </div><!-- end #editor-screen -->
+    </div>
 
   </div><!-- end game-container -->
 
   <script src="utils.js"></script>
   <script src="config.js"></script>
+  <script src="presets.js"></script>
+  <script src="player.js"></script>
+  <script src="shop.js"></script>
   <script src="state.js"></script>
   <script src="ai.js"></script>
   <script src="ui.js"></script>
@@ -262,12 +253,12 @@
   <script src="editor.js"></script>
 
   <script>
-    /* Init: render boss cards and set player HUD name from config */
     document.addEventListener('DOMContentLoaded', () => {
+      Player.resetDailyQuests();
       UI.renderBossCards();
+      UI.updateHUD();
       document.getElementById('playerHudName').textContent = Config.player.name;
     });
   </script>
-
 </body>
 </html>

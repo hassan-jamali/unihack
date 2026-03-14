@@ -22,6 +22,12 @@ function _loadConfig() {
     const saved = localStorage.getItem(CONFIG_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
+      // Strip any bosses that are now presets (prevent duplicates)
+      if (Array.isArray(parsed.bosses)) {
+        const presetIds = ['preset_maths','preset_science','preset_history',
+                           'maths','science','business','history'];
+        parsed.bosses = parsed.bosses.filter(b => !presetIds.includes(b.id));
+      }
       return { ...CONFIG_DEFAULTS, ...parsed };
     }
   } catch (e) {

@@ -1,43 +1,51 @@
 /* ═══════════════════════════════════════════
    state.js — Runtime game state
-   Single source of truth for all live data.
-   Only game.js should read/write this.
-   Depends on: config.js
    ═══════════════════════════════════════════ */
 
 const State = {
   bossIndex:       0,
   bossHp:          0,
   playerHp:        0,
+  maxPlayerHp:     100,
   canAnswer:       false,
   currentQuestion: null,
   shuffledAnswers: [],
   questionPool:    [],
   poolIndex:       0,
   loadingTimer:    null,
+  activeBosses:    [],
 
-  /** bosses being fought in this run (may be a subset if user chose one boss) */
-  activeBosses: [],
+  // Quest tracking (reset each run)
+  runBossesDefeated:  0,
+  runCorrectAnswers:  0,
+  runWrongAnswers:    0,
+  runNoDamage:        true,
+  runPerfect:         true,
+  shieldHp:           0,
 
   reset(bossList) {
     if (this.loadingTimer) clearInterval(this.loadingTimer);
-    this.bossIndex       = 0;
-    this.bossHp          = 0;
-    this.playerHp        = Config.player.maxHp;
-    this.canAnswer       = false;
-    this.currentQuestion = null;
-    this.shuffledAnswers = [];
-    this.questionPool    = [];
-    this.poolIndex       = 0;
-    this.loadingTimer    = null;
-    this.activeBosses    = bossList || [...Config.bosses];
+    this.bossIndex         = 0;
+    this.bossHp            = 0;
+    this.canAnswer         = false;
+    this.currentQuestion   = null;
+    this.shuffledAnswers   = [];
+    this.questionPool      = [];
+    this.poolIndex         = 0;
+    this.loadingTimer      = null;
+    this.activeBosses      = bossList || [];
+    this.runBossesDefeated = 0;
+    this.runCorrectAnswers = 0;
+    this.runWrongAnswers   = 0;
+    this.runNoDamage       = true;
+    this.runPerfect        = true;
+
+    const boosts      = Player.getBoosts();
+    this.maxPlayerHp  = Config.player.maxHp + boosts.hpBonus;
+    this.playerHp     = this.maxPlayerHp;
+    this.shieldHp     = boosts.shieldHp;
   },
 
-  get currentBoss() {
-    return this.activeBosses[this.bossIndex];
-  },
-
-  get poolExhausted() {
-    return this.poolIndex >= this.questionPool.length;
-  },
+  get currentBoss()  { return this.activeBosses[this.bossIndex]; },
+  get poolExhausted(){ return this.poolIndex >= this.questionPool.length; },
 };
