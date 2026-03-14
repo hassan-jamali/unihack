@@ -519,8 +519,12 @@ img.boss-icon { font-size: 0; }
   position: absolute;
   inset: 0;
   background:
-    url("orig.png") top center / 100% 62% no-repeat,
-    linear-gradient(180deg, #67da74 0%, #41b84f 62%);
+    url("src/assets/bg/8093eb596b38846d47cf30feb907d68f.gif") top center / 100% 62% no-repeat,
+    linear-gradient(#67da74 0%, #41b84f 62%);
+  /* background-size: cover; */
+  /* background-position: center; */
+  height: 140vh;
+  width: 100vw;
 }
 
 .arena-type-overlay {
