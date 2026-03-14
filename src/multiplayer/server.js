@@ -579,11 +579,11 @@ export const Multiplayer = {
 
   // ── FIX 2: Don't null avatarData here — it clears the avatar before the game even loads ──
   _launchGame() {
-    // avatarData is intentionally NOT cleared here anymore.
-    // It's already preserved correctly through _leave() via savedAvatar.
-    console.log('🎮 Multiplayer game start! Players:', mpState.players.map(p => p.name));
-    if (typeof window.startGame === 'function') window.startGame();
-  },
+  window.__mpPlayers = mpState.players;   // ← add
+  window.__mpSocket  = mpState.socket;    // ← add
+  window.__mpSelf    = mpState.playerId;  // ← add
+  if (typeof window.startGame === 'function') window.startGame();
+},
 
   _leave() {
     if (mpState.socket) {
