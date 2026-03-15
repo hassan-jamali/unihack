@@ -60,7 +60,7 @@ function _freshState() {
     timerInterval: null,
     forceTimeout:  null,
     gameOver:      false,
-    resolving:     false,  // guard against double _resolveRound
+    resolving:     false,
   };
 }
 
@@ -86,7 +86,7 @@ function mountMPGame() {
   MP.isHost  = MP.players.find(p => p.id === MP.selfId)?.isHost ?? false;
 
   // Load bosses from config + presets
-  const cfg     = _loadConfig();
+  const cfg       = _loadConfig();
   const allBosses = [...Presets, ...(cfg.bosses || [])];
   MP.bosses = allBosses.length ? allBosses : Presets;
 
@@ -102,9 +102,9 @@ function mountMPGame() {
   _listenSocket();
 
   if (MP.isHost) {
-  _send({ type: 'MP_BOSS_START', bossIndex: 0, bosses: MP.bosses }); // ← change this line only
-  _startBoss(0);
-}
+    _send({ type: 'MP_BOSS_START', bossIndex: 0, bosses: MP.bosses });
+    _startBoss(0);
+  }
   // Guests wait for MP_BOSS_START via socket
 }
 
@@ -268,7 +268,7 @@ function _renderTopBar() {
   const bar = document.getElementById('mpg-topbar');
   if (!bar) return;
   bar.innerHTML = MP.players.map(p => {
-    const pct  = Math.round((p.hp / p.maxHp) * 100);
+    const pct     = Math.round((p.hp / p.maxHp) * 100);
     const hpColor = pct <= 25 ? '#e94560' : pct <= 50 ? '#f59e0b' : '#4ade80';
     const av = p.avatarData
       ? `<div class="mpg-chip-av"><img src="${p.avatarData}"></div>`
@@ -292,11 +292,11 @@ function _setChipState(pid, state) {
    BOSS SETUP
    ══════════════════════════════════════════════════ */
 async function _startBoss(index) {
-  MP.bossIndex   = index;
-  MP.resolving   = false;
-  MP.answered    = {};
-  MP.questionPool = [];
-  MP.poolIndex   = 0;
+  MP.bossIndex     = index;
+  MP.resolving     = false;
+  MP.answered      = {};
+  MP.questionPool  = [];
+  MP.poolIndex     = 0;
   MP.questionIndex = 0;
 
   const boss = MP.bosses[index];
@@ -307,22 +307,26 @@ async function _startBoss(index) {
   // UI
   _el('mpg-boss-name').textContent = boss.name;
   const typeEl = _el('mpg-boss-type');
-  typeEl.textContent  = boss.type || '???';
-  typeEl.style.color  = boss.typeColor || '#60a5fa';
+  typeEl.textContent      = boss.type || '???';
+  typeEl.style.color      = boss.typeColor || '#60a5fa';
   typeEl.style.background = (boss.typeColor || '#60a5fa') + '22';
   _el('mpg-arena-bg').style.background = boss.typeBg || 'rgba(96,165,250,0.12)';
   _setBossHp(boss.maxHp, boss.maxHp);
-  _el('mpg-answers').innerHTML = '';
+  _el('mpg-answers').innerHTML      = '';
   _el('mpg-timer-fill').style.width = '0%';
-  _setChipState(null); // reset all
+  _setChipState(null);
 
   // Sprite
   const img = _el('mpg-sprite-img');
   const emo = _el('mpg-sprite-emoji');
   if (boss.image) {
-    img.src = boss.image; img.style.display = ''; emo.style.display = 'none';
+    img.src = boss.image;
+    img.style.setProperty('display', 'inline-block', 'important');
+    emo.style.setProperty('display', 'none', 'important');
   } else {
-    img.style.display = 'none'; emo.textContent = boss.emoji || '🤖'; emo.style.display = '';
+    img.style.setProperty('display', 'none', 'important');
+    emo.textContent = boss.emoji || '🤖';
+    emo.style.setProperty('display', 'inline', 'important');
   }
 
   await _type(boss.intro || `${boss.name} appears!`);
@@ -350,20 +354,22 @@ function _nextQuestion() {
   if (!MP.isHost) return;
   if (MP.poolIndex >= MP.questionPool.length) MP.poolIndex = 0;
 
-  const q    = MP.questionPool[MP.poolIndex++];
-  const ans  = shuffle([q.a, ...q.w]);
-  const idx  = ++MP.questionIndex;
+  const q   = MP.questionPool[MP.poolIndex++];
+  const ans = shuffle([q.a, ...q.w]);
+  const idx = ++MP.questionIndex;
 
   MP.currentQ    = q;
   MP.shuffledAns = ans;
   MP.answered    = {};
   MP.resolving   = false;
 
-  // Send to everyone (including self — simpler, avoids dual-path bugs)
+  // Send to guests, then show locally for host
   _send({ type: 'MP_QUESTION', q, ans, idx });
+  _showQuestion(q, ans, idx);
 }
 
 function _showQuestion(q, ans, idx) {
+  if (!q || !ans) return;
   MP.currentQ      = q;
   MP.shuffledAns   = ans;
   MP.questionIndex = idx;
@@ -388,7 +394,7 @@ function _showQuestion(q, ans, idx) {
    ANSWERING
    ══════════════════════════════════════════════════ */
 function _pick(idx) {
-  if (MP.answered[MP.selfId] !== undefined) return;   // already answered
+  if (MP.answered[MP.selfId] !== undefined) return;
   if (MP.resolving) return;
 
   const correct = MP.shuffledAns[idx] === MP.currentQ.a;
@@ -396,7 +402,6 @@ function _pick(idx) {
 
   MP.answered[MP.selfId] = { idx, correct, damage };
 
-  // Visual feedback immediately
   document.querySelectorAll('.mpg-abtn').forEach((b, i) => {
     if (i !== idx) b.classList.add('dim');
   });
@@ -409,7 +414,6 @@ function _pick(idx) {
 }
 
 function _onAnswer(msg) {
-  // Ignore stale or duplicate
   if (msg.qIdx !== MP.questionIndex) return;
   if (MP.answered[msg.pid] !== undefined) return;
 
@@ -460,7 +464,6 @@ function _resolveRound() {
 
   MP.bossHp = Math.max(0, MP.bossHp - totalDmg);
 
-  // Send result to everyone including self
   _send({
     type:       'MP_RESULT',
     correctIdx: MP.shuffledAns.indexOf(MP.currentQ.a),
@@ -475,7 +478,6 @@ function _resolveRound() {
 
 async function _applyResult(msg) {
   _stopTimer();
-  // Ignore if we've already moved to a different question/boss
   if (msg.bossIndex !== MP.bossIndex) return;
 
   _disableAnswers();
@@ -484,25 +486,21 @@ async function _applyResult(msg) {
   const correctIdx = msg.correctIdx;
   const correctAns = MP.shuffledAns[correctIdx] || '?';
 
-  // Reveal buttons
   document.querySelectorAll('.mpg-abtn').forEach((b, i) => {
     b.classList.remove('dim');
     if (i === correctIdx) b.classList.add('correct');
     b.disabled = true;
   });
 
-  // Show all icons
   for (const [pid, a] of Object.entries(msg.results)) {
     const p = MP.players.find(x => x.id === pid);
     if (p && a.idx >= 0) _addIconIfMissing(a.idx, p);
   }
 
-  // Boss HP
   MP.bossHp = msg.bossHp;
   _setBossHp(msg.bossHp, msg.bossMaxHp);
   if (msg.totalDmg > 0) _bossHit();
 
-  // Player HPs
   for (const [pid, hp] of Object.entries(msg.playerHps)) {
     const p = MP.players.find(x => x.id === pid);
     if (!p) continue;
@@ -511,7 +509,6 @@ async function _applyResult(msg) {
   }
   _renderTopBar();
 
-  // Feedback
   const selfA = msg.results[MP.selfId];
   const lines = [];
   if (selfA?.correct) lines.push(`✓ Correct! Dealt ${selfA.damage} dmg!`);
@@ -519,7 +516,7 @@ async function _applyResult(msg) {
   const nCorrect = Object.values(msg.results).filter(r => r.correct).length;
   lines.push(`${nCorrect}/${Object.keys(msg.results).length} correct — ${msg.totalDmg} total dmg!`);
   const newlyFainted = MP.players.filter(p => p.fainted && msg.playerHps[p.id] !== undefined && msg.playerHps[p.id] <= 0);
-  if (newlyFainted.length) lines.push(`💀 ${newlyFainted.map(p=>p.name).join(', ')} fainted!`);
+  if (newlyFainted.length) lines.push(`💀 ${newlyFainted.map(p => p.name).join(', ')} fainted!`);
 
   await _type(lines.join('\n'));
   await sleep(1600);
@@ -536,7 +533,7 @@ async function _applyResult(msg) {
     if (nextIdx < MP.bosses.length) {
       await _type('A new challenger approaches!');
       await sleep(800);
-      if (MP.isHost) _send({ type: 'MP_BOSS_START', bossIndex: nextIdx, bosses: [] });
+      if (MP.isHost) _send({ type: 'MP_BOSS_START', bossIndex: nextIdx, bosses: MP.bosses });
       _startBoss(nextIdx);
     } else {
       _doGameOver(true);
@@ -553,19 +550,18 @@ function _doGameOver(win) {
   if (MP.gameOver) return;
   MP.gameOver = true;
   _stopTimer();
-// ← ADD THIS BLOCK
 
   if (win) {
-  if (Player.questsUnlocked) {
-    const quest = Shop.getQuest('q_mp_win');
-    const prog  = Player.getQuestProgress('q_mp_win');
-    if (quest && !prog.completed) {
-      Player.completeQuest('q_mp_win');
-      Player.awardXP(quest.reward.xp);
-      Player.awardCoins(quest.reward.coins);
+    if (Player.questsUnlocked) {
+      const quest = Shop.getQuest('q_mp_win');
+      const prog  = Player.getQuestProgress('q_mp_win');
+      if (quest && !prog.completed) {
+        Player.completeQuest('q_mp_win');
+        Player.awardXP(quest.reward.xp);
+        Player.awardCoins(quest.reward.coins);
+      }
     }
   }
-}
 
   const overlay = _el('mpg-overlay');
   if (!overlay) return;
@@ -600,29 +596,25 @@ function _listenSocket() {
       case 'MP_BOSS_START':
   if (!MP.isHost) {
     if (msg.bosses?.length) {
-      const cfg = _loadConfig();
-      const localBosses = [...Presets, ...(cfg.bosses || [])];
-      MP.bosses = msg.bosses.map(b => {
-        const local = localBosses.find(l => l.id === b.id);
-        return local ? { ...b, image: local.image || b.image, emoji: local.emoji || b.emoji } : b;
-      });
+      MP.bosses = msg.bosses;
     }
-    _startBoss(msg.bossIndex);
+    setTimeout(() => _startBoss(msg.bossIndex), 200);
   }
   break;
 
       case 'MP_QUESTION':
-        // Everyone shows the question (host sent it to all via RELAY, incl. itself)
+        // Host already called _showQuestion directly in _nextQuestion
+        // Only guests handle this
+        if (MP.isHost) return;
+        if (!msg.q || !msg.ans) return;
         _showQuestion(msg.q, msg.ans, msg.idx);
         break;
 
       case 'MP_ANSWER':
-        // Everyone tracks answers (so all see icons appear live)
         _onAnswer(msg);
         break;
 
       case 'MP_RESULT':
-        // Everyone applies the result
         _applyResult(msg);
         break;
     }
@@ -642,22 +634,19 @@ function _startTimer() {
     const elapsed = Date.now() - start;
     const pct     = Math.max(0, 100 - (elapsed / ANSWER_TIMEOUT_MS) * 100);
     if (fill) {
-      fill.style.width = pct + '%';
+      fill.style.width      = pct + '%';
       fill.style.background = pct < 33 ? '#e94560' : pct < 66 ? '#f59e0b' : '#4ade80';
     }
     if (elapsed >= ANSWER_TIMEOUT_MS) {
       _stopTimer();
-      // Auto-submit self as wrong if not answered
       if (MP.answered[MP.selfId] === undefined) {
         MP.answered[MP.selfId] = { idx: -1, correct: false, damage: 0 };
         _setChipState(MP.selfId, 'wrong');
         _send({ type: 'MP_ANSWER', pid: MP.selfId, qIdx: MP.questionIndex, idx: -1, correct: false, damage: 0 });
       }
-      // Host resolves after short grace period for any in-flight answers
       if (MP.isHost && !MP.resolving) {
         MP.forceTimeout = setTimeout(() => {
           if (MP.resolving) return;
-          // Fill in any missing answers as wrong
           MP.players.filter(p => !p.fainted).forEach(p => {
             if (MP.answered[p.id] === undefined) {
               MP.answered[p.id] = { idx: -1, correct: false, damage: 0 };
@@ -712,13 +701,13 @@ function _addIcon(ansIdx, player) {
   const wrap = _el(`mpg-ic${ansIdx}`);
   if (!wrap) return;
   const icon = document.createElement('div');
-  icon.className = 'mpg-icon';
+  icon.className   = 'mpg-icon';
   icon.dataset.pid = player.id;
   icon.style.border = `1px solid ${player.color}`;
   if (player.avatarData) {
     icon.innerHTML = `<img src="${player.avatarData}">`;
   } else {
-    icon.textContent = player.name[0];
+    icon.textContent    = player.name[0];
     icon.style.background = player.color + '33';
   }
   wrap.appendChild(icon);
@@ -752,11 +741,13 @@ function _exitGame() {
 /* ══════════════════════════════════════════════════
    PATCH window.startGame
    ══════════════════════════════════════════════════ */
-const _origStart = window.startGame;
-window.startGame = function() {
-  if (window.__mpPlayers?.length >= 2) {
-    mountMPGame();
-  } else if (typeof _origStart === 'function') {
-    _origStart();
-  }
-};
+setTimeout(() => {
+  const _origStart = window.startGame;
+  window.startGame = function() {
+    if (window.__mpPlayers?.length >= 2) {
+      mountMPGame();
+    } else if (typeof _origStart === 'function') {
+      _origStart();
+    }
+  };
+}, 0);
