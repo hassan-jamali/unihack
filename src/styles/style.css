@@ -527,7 +527,7 @@ img.boss-icon { font-size: 0; }
   position: absolute;
   inset: 0;
   background:
-    url("src/assets/bg/8093eb596b38846d47cf30feb907d68f.gif") top center / 100% 62% no-repeat,
+    url(https://media.discordapp.net/attachments/1481220361814020106/1482569011014402058/8093eb596b38846d47cf30feb907d68f.gif?ex=69b76d7d&is=69b61bfd&hm=494a26ab70af2047024238f61264aa4ad27eaba3b1279ced7fe7cac6515d0540&=) top center / 100% 62% no-repeat,
     linear-gradient(#67da74 0%, #41b84f 62%);
   /* background-size: cover; */
   /* background-position: center; */
