@@ -552,16 +552,16 @@ function _doGameOver(win) {
   _stopTimer();
 
   if (win) {
-    if (Player.questsUnlocked) {
-      const quest = Shop.getQuest('q_mp_win');
-      const prog  = Player.getQuestProgress('q_mp_win');
-      if (quest && !prog.completed) {
-        Player.completeQuest('q_mp_win');
-        Player.awardXP(quest.reward.xp);
-        Player.awardCoins(quest.reward.coins);
-      }
+    // Award MP trophy regardless of questsUnlocked — MP win is its own reward
+    const quest = Shop.getQuest('q_mp_win');
+    const prog  = Player.getQuestProgress('q_mp_win');
+    if (quest && !prog.completed) {
+      Player.completeQuest('q_mp_win');
+      Player.awardXP(quest.reward.xp);
+      Player.awardCoins(quest.reward.coins);
     }
   }
+  
 
   const overlay = _el('mpg-overlay');
   if (!overlay) return;
