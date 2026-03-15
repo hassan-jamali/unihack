@@ -12,6 +12,15 @@ export const Shop = {
   ITEMS: [
     // ── HP Boosts ──
     {
+      id: 'pomodoro',
+      name: 'Suspiciously Responsible Tomato',
+      desc: 'Unlocks Pomodoro Clock',
+      image: 'https://cdn.discordapp.com/attachments/1481220361814020106/1482569191939899392/fc435.png?ex=69b76da8&is=69b61c28&hm=22bc758dee6958cc7821498366bf41e77412ae7c9a9732507f7319ffe7b442d0',
+      price: 1,
+      effect: { unlockPomodoro: true },
+      rarity: 'epic',
+    },
+    {
       id: 'hp_potion',
       name: 'HP Potion',
       desc: '+25 max HP per battle',
@@ -119,6 +128,10 @@ export const Shop = {
     // Handle special unlocks
     if (item.effect?.unlockQuests) {
       Player.questsUnlocked = true;
+    }
+    
+    if (item.effect?.unlockPomodoro) {
+      Player.pomodoroUnlocked = true;
     }
 
     // Add:

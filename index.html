@@ -36,6 +36,7 @@
         <div class="hud-right">
           <span id="hudCoins" class="hud-coins">🪙 0</span>
           <button id="navMulti" class="nav-btn" onclick="openMultiplayer()">Multiplayer</button>
+          <button id="navPomodoro" class="nav-btn" onclick="openPomodoro()" style="display:none">Pomodoro</button>
           <button id="navShop" class="nav-btn" onclick="openShop()" style="display:none">Shop</button>
           <button id="navQuests" class="nav-btn" onclick="openQuests()" style="display:none">Quests</button>
         </div>
@@ -173,6 +174,67 @@
     <div class="meta-title">MULTIPLAYER</div>
   </div>
   <div id="mp-root" style="overflow-y:auto;flex:1;position:relative;z-index:1;isolation:isolate;"></div>
+</div>
+
+
+<!-- ═══════════ POMODORO SCREEN ═══════════ -->
+<div id="pomodoro-screen" class="screen">
+  <div class="meta-header">
+    <button class="meta-back" onclick="goToTitle()">← BACK</button>
+    <div class="meta-title">🍅 POMODORO</div>
+    <span style="font-size:6px;color:#aaa">FOCUS TIMER</span>
+  </div>
+
+  <div class="pom-body">
+
+    <div class="pom-mode-tabs">
+      <button class="pom-mode-tab active" id="pomTabFocus" onclick="Pomodoro.setMode('focus')">🍅 FOCUS</button>
+      <button class="pom-mode-tab" id="pomTabBreak" onclick="Pomodoro.setMode('break')">☕ SHORT BREAK</button>
+      <button class="pom-mode-tab" id="pomTabLong"  onclick="Pomodoro.setMode('long')">🌙 LONG BREAK</button>
+    </div>
+
+    <div class="pom-clock-wrap">
+      <svg class="pom-ring" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle class="pom-ring-bg"   cx="100" cy="100" r="84"/>
+        <circle class="pom-ring-fill" cx="100" cy="100" r="84" id="pomRingFill"/>
+      </svg>
+      <div class="pom-clock-inner">
+        <div class="pom-timer-display" id="pomTimer">25:00</div>
+        <div class="pom-session-label" id="pomSessionLabel">SESSION 1</div>
+      </div>
+    </div>
+
+    <div class="pom-controls">
+      <button class="pom-ctrl-btn" onclick="Pomodoro.reset()">↺ RESET</button>
+      <button class="pom-ctrl-btn pom-play-btn" id="pomPlayBtn" onclick="Pomodoro.toggle()">▶ START</button>
+      <button class="pom-ctrl-btn" onclick="Pomodoro.skip()">⏭ SKIP</button>
+    </div>
+
+    <div class="pom-session-track">
+      <div class="pom-session-dots" id="pomSessionDots"></div>
+      <div class="pom-session-info"  id="pomSessionInfo">4 sessions until long break</div>
+    </div>
+
+    <!-- Custom time settings -->
+    <div class="pom-settings">
+      <div class="pom-settings-header">⚙ CUSTOM TIMES</div>
+      <div class="pom-settings-row">
+        <label class="pom-settings-label">🍅 Focus (min)</label>
+        <input type="number" id="pomSetFocus" class="pom-settings-input" value="25" min="1" max="120">
+      </div>
+      <div class="pom-settings-row">
+        <label class="pom-settings-label">☕ Short break (min)</label>
+        <input type="number" id="pomSetBreak" class="pom-settings-input" value="5"  min="1" max="60">
+      </div>
+      <div class="pom-settings-row">
+        <label class="pom-settings-label">🌙 Long break (min)</label>
+        <input type="number" id="pomSetLong"  class="pom-settings-input" value="15" min="1" max="60">
+      </div>
+      <button class="pom-settings-apply" onclick="Pomodoro.applySettings()">✓ APPLY</button>
+      <div class="pom-settings-status" id="pomSettingsStatus"></div>
+    </div>
+
+  </div>
 </div>
 
     <!-- ═══════════ EDITOR SCREEN ═══════════ -->
