@@ -154,4 +154,4 @@ Built by:
 
 ## License
 
-No license file found in this repository. If you intend others to reuse this code, consider adding a LICENSE (MIT, Apache-2.0, etc.).
+Licensed under the MIT License. See the `LICENSE` file for details.
