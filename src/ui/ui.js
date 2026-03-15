@@ -92,11 +92,13 @@ export const UI = {
     const el   = document.getElementById('hudLevel');
     const bar  = document.getElementById('hudXpFill');
     const coins= document.getElementById('hudCoins');
+    const shopCoins = document.getElementById('shopCoinsDisplay');
     const shop = document.getElementById('navShop');
     const quest= document.getElementById('navQuests');
     if (el)    el.textContent   = `LV.${lvl}`;
     if (bar)   bar.style.width  = pct + '%';
     if (coins) coins.textContent= `🪙 ${Player.coins}`;
+    if (shopCoins)  shopCoins.textContent = `🪙 ${Player.coins}`;
     if (shop)  shop.style.display = Player.shopUnlocked  ? 'inline-block' : 'none';
     if (quest) quest.style.display= Player.questsUnlocked? 'inline-block' : 'none';
     const pom = document.getElementById('navPomodoro');
@@ -416,6 +418,7 @@ window.openMultiplayer = openMultiplayer;
 export function openShop() {
   if (!Player.shopUnlocked) return;
   UI.renderShop();
+  UI.updateHUD();
   UI.showScreen('shop-screen', 'slide-left');
 }
 
