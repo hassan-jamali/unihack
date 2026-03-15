@@ -81,6 +81,12 @@ export const cheat = {
     _UI.updateHUD();
     console.log('Player data reset.');
   },
+  unlockPomodoro() {
+  _Player.data.pomodoroUnlocked = true;
+  _Player.save();
+  _UI.updateHUD();
+  console.log('Pomodoro unlocked!');
+  },
   status() {
     console.table({
       level:  _Player.level,
