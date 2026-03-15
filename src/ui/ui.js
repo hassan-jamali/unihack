@@ -9,7 +9,7 @@ import { Presets } from '../game/presets.js';
 import { Shop } from './shop.js';
 import { triggerAnim, sleep } from '../core/utils.js';
 import { Multiplayer } from '../multiplayer/server.js';
-import { Transitions } from './transitions.js';
+import { Transitions } from '../ui/transitions.js';
 
 export const UI = {
 
@@ -338,7 +338,7 @@ export const UI = {
       const equipped = Player.isEquipped(item.id);
       return `
         <div class="shop-card rarity-${item.rarity} ${owned ? 'owned' : ''}">
-          <div class="shop-icon">${item.icon}</div>
+          <div class="shop-icon">${item.image ? `<img src="${item.image}" style="width:32px;height:32px;object-fit:contain;">` : item.icon}</div>
           <div class="shop-name">${item.name}</div>
           <div class="shop-desc">${item.desc}</div>
           <div class="shop-rarity ${item.rarity}">${item.rarity}</div>
@@ -366,7 +366,7 @@ export const UI = {
       const done = prog.completed;
       return `
         <div class="quest-item diff-${quest.diff} ${done ? 'completed' : ''}">
-          <div class="quest-icon">${quest.icon}</div>
+          <div class="quest-icon">${quest.image ? `<img src="${quest.image}" style="width:28px;height:28px;object-fit:contain;">` : quest.icon}</div>
           <div class="quest-info">
             <div class="quest-name">${quest.name}</div>
             <div class="quest-desc">${quest.desc}</div>

@@ -33,6 +33,8 @@ import { _loadConfig }  from '../core/config.js';
 import { Presets }      from '../game/presets.js';
 import { AI }           from '../ai/ai.js';
 import { shuffle, sleep } from '../core/utils.js';
+import { Player } from '../game/player.js';
+import { Shop }   from '../ui/shop.js';
 
 const ANSWER_TIMEOUT_MS = 20_000;
 const COLORS = ['#e94560','#4ade80','#60a5fa','#f59e0b','#a78bfa','#f472b6'];
@@ -551,6 +553,19 @@ function _doGameOver(win) {
   if (MP.gameOver) return;
   MP.gameOver = true;
   _stopTimer();
+// ← ADD THIS BLOCK
+
+  if (win) {
+  if (Player.questsUnlocked) {
+    const quest = Shop.getQuest('q_mp_win');
+    const prog  = Player.getQuestProgress('q_mp_win');
+    if (quest && !prog.completed) {
+      Player.completeQuest('q_mp_win');
+      Player.awardXP(quest.reward.xp);
+      Player.awardCoins(quest.reward.coins);
+    }
+  }
+}
 
   const overlay = _el('mpg-overlay');
   if (!overlay) return;

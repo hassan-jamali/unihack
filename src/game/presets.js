@@ -7,17 +7,17 @@
 const PRESET_BOSSES = [
   {
     id:        'preset_maths',
-    name:      'Prof. Calculus',
+    name:      'Terence',
     type:      'MATHS',
     difficulty:'medium',
     maxHp:     100,
     dmgDealt:  15,
     dmgTaken:  25,
-    image: '',
+    image: 'https://cdn.discordapp.com/attachments/1481220361814020106/1482347610672201798/New_Piskel_1.png?ex=69b69f4b&is=69b54dcb&hm=63d7a7cc309d48def8f3d1990de2c84268634972822bb8b71d8fd569a824316a',
     typeColor: '#60a5fa',
     typeBg:    'rgba(96,165,250,0.25)',
-    intro:     'Prof. Calculus appears!\nTest your mathematical mind!',
-    defeat:    "Numbers don't lie!\nProf. Calculus fainted!",
+    intro:     'Terence appears!\nTest your mathematical mind!',
+    defeat:    "Numbers don't lie!\nTerence fainted!",
     preset:    true,
   },
   {
