@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════
    ws-server.js — Brain Battle WebSocket Server
    Supports: room listing, public/private rooms,
-   custom names + session-only avatars
+   custom names + session-only avatars,
+   selectedBossIds forwarded on GAME_START
    ═══════════════════════════════════════════ */
 
 import { createServer } from 'http';
@@ -107,14 +108,18 @@ wss.on('connection', (ws) => {
     }
 
     // ── GAME_START (host only) ──
+    // Forward selectedBossIds so guests can show the correct boss list
     if (msg.type === 'GAME_START') {
       if (!playerRoom) return;
       const room = rooms.get(playerRoom);
       if (!room) return;
       const player = room.players.get(playerId);
       if (!player?.isHost) return;
-      broadcast(playerRoom, { type: 'GAME_START' });
-      console.log(`[${playerRoom}] Game started!`);
+      broadcast(playerRoom, {
+        type:            'GAME_START',
+        selectedBossIds: msg.selectedBossIds || null,
+      });
+      console.log(`[${playerRoom}] Game started! Bosses: ${msg.selectedBossIds ? msg.selectedBossIds.join(',') : 'all'}`);
     }
 
     // ── PLAYER_LEFT ──

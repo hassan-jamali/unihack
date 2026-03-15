@@ -9,9 +9,10 @@
 
    2. In server.js _launchGame(), inject context before calling startGame:
         _launchGame() {
-          window.__mpPlayers = mpState.players;
-          window.__mpSocket  = mpState.socket;
-          window.__mpSelf    = mpState.playerId;
+          window.__mpPlayers      = mpState.players;
+          window.__mpSocket       = mpState.socket;
+          window.__mpSelf         = mpState.playerId;
+          window.__mpBossOverride = selectedBosses; // array or null
           if (typeof window.startGame === 'function') window.startGame();
         }
 
@@ -27,6 +28,14 @@
           return;
         }
       NOTE: This sends to ALL players including the sender — that's intentional.
+
+   4. In ws-server.js GAME_START handler, forward selectedBossIds:
+        if (msg.type === 'GAME_START') {
+          broadcast(playerRoom, {
+            type: 'GAME_START',
+            selectedBossIds: msg.selectedBossIds || null,
+          });
+        }
    ═══════════════════════════════════════════ */
 
 import { _loadConfig }  from '../core/config.js';
@@ -85,10 +94,14 @@ function mountMPGame() {
   MP.socket  = window.__mpSocket;
   MP.isHost  = MP.players.find(p => p.id === MP.selfId)?.isHost ?? false;
 
-  // Load bosses from config + presets
-  const cfg       = _loadConfig();
-  const allBosses = [...Presets, ...(cfg.bosses || [])];
-  MP.bosses = allBosses.length ? allBosses : Presets;
+  // ── Boss list: __mpBossOverride is set by _launchGame for BOTH host and guests ──
+  if (window.__mpBossOverride?.length) {
+    MP.bosses = window.__mpBossOverride;
+  } else {
+    const cfg       = _loadConfig();
+    const allBosses = [...Presets, ...(cfg.bosses || [])];
+    MP.bosses = allBosses.length ? allBosses : Presets;
+  }
 
   // Mount UI
   let existing = document.getElementById('mp-battle-root');
@@ -522,22 +535,32 @@ async function _applyResult(msg) {
   await sleep(1600);
 
   const allFainted = MP.players.every(p => p.fainted);
-  if (allFainted) { _doGameOver(false); return; }
+  if (allFainted) {
+    if (MP.isHost) _send({ type: 'MP_GAME_OVER', win: false });
+    _doGameOver(false);
+    return;
+  }
 
   if (msg.bossHp <= 0) {
     _bossHit();
     await _type(boss.defeat || `${boss.name} fainted!`);
     await sleep(1000);
 
-    const nextIdx = MP.bossIndex + 1;
-    if (nextIdx < MP.bosses.length) {
-      await _type('A new challenger approaches!');
-      await sleep(800);
-      if (MP.isHost) _send({ type: 'MP_BOSS_START', bossIndex: nextIdx, bosses: MP.bosses });
-      _startBoss(nextIdx);
-    } else {
-      _doGameOver(true);
+    // Only the HOST decides what happens next — guests wait for MP_BOSS_START relay
+    if (MP.isHost) {
+      const nextIdx = MP.bossIndex + 1;
+      if (nextIdx < MP.bosses.length) {
+        await _type('A new challenger approaches!');
+        await sleep(800);
+        _send({ type: 'MP_BOSS_START', bossIndex: nextIdx, bosses: MP.bosses });
+        _startBoss(nextIdx);
+      } else {
+        // Broadcast victory to all players before showing overlay
+        _send({ type: 'MP_GAME_OVER', win: true });
+        _doGameOver(true);
+      }
     }
+    // Guests do nothing here — MP_BOSS_START or MP_GAME_OVER relay will arrive shortly
   } else {
     if (MP.isHost) _nextQuestion();
   }
@@ -552,7 +575,6 @@ function _doGameOver(win) {
   _stopTimer();
 
   if (win) {
-    // Award MP trophy regardless of questsUnlocked — MP win is its own reward
     const quest = Shop.getQuest('q_mp_win');
     const prog  = Player.getQuestProgress('q_mp_win');
     if (quest && !prog.completed) {
@@ -561,7 +583,6 @@ function _doGameOver(win) {
       Player.awardCoins(quest.reward.coins);
     }
   }
-  
 
   const overlay = _el('mpg-overlay');
   if (!overlay) return;
@@ -594,13 +615,14 @@ function _listenSocket() {
     switch (msg.type) {
 
       case 'MP_BOSS_START':
-  if (!MP.isHost) {
-    if (msg.bosses?.length) {
-      MP.bosses = msg.bosses;
-    }
-    setTimeout(() => _startBoss(msg.bossIndex), 200);
-  }
-  break;
+        if (!MP.isHost) {
+          // Host always sends the authoritative filtered boss list — use it exclusively
+          if (msg.bosses?.length) {
+            MP.bosses = msg.bosses;
+          }
+          setTimeout(() => _startBoss(msg.bossIndex), 200);
+        }
+        break;
 
       case 'MP_QUESTION':
         // Host already called _showQuestion directly in _nextQuestion
@@ -616,6 +638,11 @@ function _listenSocket() {
 
       case 'MP_RESULT':
         _applyResult(msg);
+        break;
+
+      case 'MP_GAME_OVER':
+        // Host has determined the game outcome — apply on all clients
+        _doGameOver(msg.win);
         break;
     }
   });
@@ -688,7 +715,7 @@ function _setBossHp(cur, max) {
 function _bossHit() {
   const img = _el('mpg-sprite-img');
   const emo = _el('mpg-sprite-emoji');
-  const el  = img?.style.display !== 'none' ? img : emo;
+  const el  = MP.bosses[MP.bossIndex]?.image ? img : emo;
   if (!el) return;
   el.classList.remove('hit');
   void el.offsetWidth;
