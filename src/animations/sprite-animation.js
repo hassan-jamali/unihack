@@ -16,6 +16,17 @@ window.playSound = playSound;
 
 // Store active animations
 const activeAnimations = new Map();
+const bossIdleSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568865975111824/idle.png?ex=69b76d5a&is=69b61bda&hm=4bf6542b9781a1846d07e082dcc3b84db858c34826887c3fccdf7e323fed05cd&=&format=webp&quality=lossless';
+const bossAttackSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568865098760242/attack.png?ex=69b76d5a&is=69b61bda&hm=08a7b426c3ccad6abc004ac2c4795976365faecc382d665851909dd452f09f21&=&format=webp&quality=lossless';
+const bossHitSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568865627111544/hurt.png?ex=69b76d5a&is=69b61bda&hm=f1acd1b84e3b48a1693f4890ccf31b4bdb13e2638bbf1368635439b2389dc7df&=&format=webp&quality=lossless';
+const bossDieSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568865350422568/death.png?ex=69b76d5a&is=69b61bda&hm=8a8c1fbfc94aae8d6428bf3296ce0962e2594610abe4736e24a09f1de01822de&=&format=webp&quality=lossless';
+const bossAttackProjectileUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568866294141078/projectile.png?ex=69b76d5a&is=69b61bda&hm=e586353b909c1d40a13634c33f5a37159e84a6527da770472962d64a48d6d973&=&format=webp&quality=lossless';
+const bossAttackHitProjectileUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568963790475404/red_hit_eff.png?ex=69b76d71&is=69b61bf1&hm=b5b7f96a8d84e4aa4024de002d052c0deb6f0697e109e3fea24ec1eed1503195&=&format=webp&quality=lossless';
+const playerAttackSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568913077407814/attack_1.png?ex=69b76d65&is=69b61be5&hm=e6fa7b493e00e26e3bbbaee255bc27a942981d309dba573a10f9cdce6c6255d9&=&format=webp&quality=lossless';
+const playerIdleSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568913916006470/idle.png?ex=69b76d65&is=69b61be5&hm=cc094c0aa45b3f6ef92cfa3281acfc86fe0cc9f201180c9088f149accefb2abd&=&format=webp&quality=lossless';
+const playerHitSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568913349902406/hurt.png?ex=69b76d65&is=69b61be5&hm=9134b48f97ed8574178c7550a5be899cac8ad744594128a2c99653c3b14b07d7&=&format=webp&quality=lossless';
+
+
 
 /**
  * Animation loop function - now globally accessible
@@ -355,7 +366,7 @@ window.playSpriteAnimation = playSpriteAnimation;
  * Initialize boss idle animation
  */
 function initBossIdleAnimation() {
-  changeAnimation('bossSprite', 'src/assets/bosses/idle.png', 4, 81, 71, 120, false, 2, false);
+  changeAnimation('bossSprite', bossIdleSpriteUrl, 4, 81, 71, 120, false, 2, false);
   // Flip boss sprite to face player with multiple retries
   setTimeout(() => {
     flipBossSprite();
@@ -371,7 +382,7 @@ function initBossIdleAnimation() {
  * Play boss attack animation
  */
 function playBossAttackAnimation() {
-  changeAnimation('bossSprite', 'src/assets/bosses/attack.png', 8, 81, 71, 100, true, 2, false);
+  changeAnimation('bossSprite', bossAttackSpriteUrl, 8, 81, 71, 100, true, 2, false);
   // Play projectile animation after attack starts
   setTimeout(() => {
     playBossProjectileAnimation();
@@ -382,14 +393,14 @@ function playBossAttackAnimation() {
  * Play boss hurt animation
  */
 function playBossHurtAnimation() {
-  changeAnimation('bossSprite', 'src/assets/bosses/hurt.png', 4, 81, 71, 150, true, 2, false);
+  changeAnimation('bossSprite', bossHitSpriteUrl, 4, 81, 71, 150, true, 2, false);
 }
 
 /**
  * Play boss death animation
  */
 function playBossDeathAnimation() {
-  changeAnimation('bossSprite', 'src/assets/bosses/death.png', 7, 81, 71, 120, true, 2, false);
+  changeAnimation('bossSprite', bossDieSpriteUrl, 7, 81, 71, 120, true, 2, false);
 }
 
 /**
@@ -406,7 +417,7 @@ function playBossProjectileAnimation() {
     projectile.style.height = '80px'; // 2x bigger (was 32px)
     projectile.style.zIndex = '1000';
     projectile.style.transition = 'transform 0.3s linear'; // Faster for diagonal movement
-    projectile.style.backgroundImage = 'url(src/assets/bosses/projectile.png)';
+    projectile.style.backgroundImage = bossAttackProjectileUrl;
     projectile.style.backgroundSize = 'contain';
     projectile.style.backgroundRepeat = 'no-repeat';
     projectile.style.backgroundPosition = 'center';
@@ -515,7 +526,7 @@ function playRedHitEffect(x, y) {
     
     // Play sprite animation
     playBossAttackSFX();
-    playSpriteAnimation('src/assets/combat_effects/hit_effects/red_hit_eff.png', 7, 48, 48, 'redHitEffect', 80, true);
+    playSpriteAnimation(bossAttackHitProjectileUrl, 7, 48, 48, 'redHitEffect', 80, true);
     
     // Remove after animation completes
     setTimeout(() => {

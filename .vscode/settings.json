@@ -1,0 +1,17 @@
+{
+    "folder-color.pathColors": [
+        {
+            "folderPath": "html",
+            "color": "foldercolorizer.color_00cc66",
+            "isForExtension": true
+        },
+        {
+            "folderPath": "unihack\\src\\game\\",
+            "color": "foldercolorizer.color_00ccff"
+        },
+        {
+            "folderPath": "unihack\\src\\animations\\",
+            "color": "foldercolorizer.color_00cc66"
+        }
+    ]
+}

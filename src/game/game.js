@@ -14,9 +14,16 @@ window.restartGame = restartGame;
 window.selectAnswer = selectAnswer;
 window.cheat = cheat;
 
+const playerAttackSpriteUrl = 'https://media.discordapp.nethments/1481220361814020106/1482568913077407814/attack_1.png?ex=69b76d65&is=69b61be5&hm=e6fa7b493e00e26e3bbbaee255bc27a942981d309dba573a10f9cdce6c6255d9&=&format=webp&quality=lossless';
+
+const playerHitSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568913349902406/hurt.png?ex=69b76d65&is=69b61be5&hm=9134b48f97ed8574178c7550a5be899cac8ad744594128a2c99653c3b14b07d7&=&format=webp&quality=lossless';
+
+
 /* ═══════════════════════════════════════════
    game.js — Core game logic
    ═══════════════════════════════════════════ */
+
+
 
 const Game = {
 
@@ -101,7 +108,7 @@ const Game = {
     
     // Play attack animation on correct answer
     if (typeof changeAnimation === 'function') {
-      changeAnimation('playerSprite', 'src/assets/player/attack_1.png', 7, 96, 96, 80, true, 2, true);
+      changeAnimation('playerSprite', playerAttackSpriteUrl, 7, 96, 96, 80, true, 2, true);
       setTimeout(() => {
         playPlayerAttackSFX();
       }, 300);
@@ -150,7 +157,7 @@ const Game = {
     // Play hurt animation on wrong answer
     if (typeof changeAnimation === 'function') {
       setTimeout(() => {
-        changeAnimation('playerSprite', 'src/assets/player/hurt.png', 4, 96, 96, 150, true, 2);
+        changeAnimation('playerSprite', playerHitSpriteUrl, 4, 96, 96, 150, true, 2);
         playRedHitEffect(200, 470);
       }, 700);
     }

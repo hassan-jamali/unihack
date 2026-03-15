@@ -9,6 +9,8 @@ import { openShop, ShopUI, goToTitle, goBack } from './ui/ui.js';
 import { Editor } from './ui/editor.js';
 import './multiplayer/multiplayer-game.js';
 
+
+const playerIdleSpriteUrl = 'https://media.discordapp.net/attachments/1481220361814020106/1482568913916006470/idle.png?ex=69b76d65&is=69b61be5&hm=cc094c0aa45b3f6ef92cfa3281acfc86fe0cc9f201180c9088f149accefb2abd&=&format=webp&quality=lossless';
 // Wire up lazy cheat references
 _initCheats(Player, UI);
 
@@ -51,7 +53,7 @@ function initIdleAnimation() {
           // Start idle animation
           setTimeout(() => {
             // Initialize player idle animation
-            playSpriteAnimation('src/assets/player/idle.png', 10, 96, 96, 'playerSprite');
+            playSpriteAnimation(playerIdleSpriteUrl, 10, 96, 96, 'playerSprite');
             
             // Initialize boss idle animation
             initBossIdleAnimation();

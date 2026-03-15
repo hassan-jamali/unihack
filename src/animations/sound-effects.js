@@ -8,13 +8,34 @@
  * @param {number} explosionDelay - Delay between casting and explosion sounds (in milliseconds)
  */
 function playBossAttackSFX(explosionDelay = 300) {
-  // Random casting sound (001-006)
-  const castingIndex = Math.floor(Math.random() * 6) + 1;
-  const castingSound = `src/assets/combat_effects/hit_sfx/boss_atk/DSGNMisc_MOVEMENT-Laser Zapswish_HY_PC-${castingIndex.toString().padStart(3, '0')}.wav`;
+  // Discord CDN sounds for casting
+  const castingSounds = [
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546374/DSGNMisc_MOVEMENT-Laser_Zapswish_HY_PC-001_gowqwr.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546374/DSGNMisc_MOVEMENT-Laser_Zapswish_HY_PC-002_gowqwr.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546374/DSGNMisc_MOVEMENT-Laser_Zapswish_HY_PC-003_gowqwr.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546374/DSGNMisc_MOVEMENT-Laser_Zapswish_HY_PC-004_gowqwr.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546374/DSGNMisc_MOVEMENT-Laser_Zapswish_HY_PC-005_gowqwr.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546374/DSGNMisc_MOVEMENT-Laser_Zapswish_HY_PC-006_gowqwr.wav'
+
+  ];
   
-  // Random explosion sound (001-006)
-  const explosionIndex = Math.floor(Math.random() * 6) + 1;
-  const explosionSound = `src/assets/combat_effects/hit_sfx/boss_atk/DSGNImpt_EXPLOSION-Flare Nova_HY_PC-${explosionIndex.toString().padStart(3, '0')}.wav`;
+  // Discord CDN sounds for explosion
+  const explosionSounds = [
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546378/DSGNImpt_EXPLOSION-Flare_Nova_HY_PC-001_i2glsl.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546378/DSGNImpt_EXPLOSION-Flare_Nova_HY_PC-002_kigptx.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546378/DSGNImpt_EXPLOSION-Flare_Nova_HY_PC-003_kigptx.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546378/DSGNImpt_EXPLOSION-Flare_Nova_HY_PC-004_kigptx.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546378/DSGNImpt_EXPLOSION-Flare_Nova_HY_PC-005_i2glsl.wav',
+    'https://res.cloudinary.com/dnja9aypg/video/upload/v1773546378/DSGNImpt_EXPLOSION-Flare_Nova_HY_PC-006_jqjv6l.wav'
+  ];
+  
+  // Random casting sound
+  const castingIndex = Math.floor(Math.random() * 6);
+  const castingSound = castingSounds[castingIndex];
+  
+  // Random explosion sound
+  const explosionIndex = Math.floor(Math.random() * 6);
+  const explosionSound = explosionSounds[explosionIndex];
   
   // Play casting sound immediately
   playSound(castingSound);
