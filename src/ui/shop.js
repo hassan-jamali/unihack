@@ -12,6 +12,15 @@ export const Shop = {
   ITEMS: [
     // ── HP Boosts ──
     {
+      id: 'pomodoro',
+      name: 'Suspiciously Responsible Tomato',
+      desc: 'Unlocks Pomodoro Clock',
+      image: 'https://cdn.discordapp.com/attachments/1481220361814020106/1482569191939899392/fc435.png?ex=69b76da8&is=69b61c28&hm=22bc758dee6958cc7821498366bf41e77412ae7c9a9732507f7319ffe7b442d0',
+      price: 1,
+      effect: { unlockPomodoro: true },
+      rarity: 'epic',
+    },
+    {
       id: 'hp_potion',
       name: 'HP Potion',
       desc: '+25 max HP per battle',
@@ -93,16 +102,6 @@ export const Shop = {
       price: 150,
       effect: { unlockQuests: true },
       rarity: 'epic',
-    },
-    {
-      id: 'gameboy_mode',
-      name: 'Game Boy Mode',
-      desc: 'Unlocks the retro Game Boy shell',
-      icon: '🎮',
-      category: 'unlock',
-      price: 300,
-      effect: { unlockGameboy: true },
-      rarity: 'epic',
     }
   ],
 
@@ -121,10 +120,10 @@ export const Shop = {
       Player.questsUnlocked = true;
     }
 
-    // Add:
-    if (item.effect?.unlockGameboy) {
-      Player.gameboyUnlocked = true;
+    if (item.effect?.unlockPomodoro) {
+      Player.pomodoroUnlocked = true;
     }
+
     return { ok: true, msg: `Bought ${item.name}!` };
   },
 

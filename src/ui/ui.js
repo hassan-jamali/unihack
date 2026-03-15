@@ -10,6 +10,7 @@ import { Shop } from './shop.js';
 import { triggerAnim, sleep } from '../core/utils.js';
 import { Multiplayer } from '../multiplayer/server.js';
 import { Transitions } from '../ui/transitions.js';
+import { Pomodoro } from './pomodoro.js';
 
 export const UI = {
 
@@ -98,8 +99,8 @@ export const UI = {
     if (coins) coins.textContent= `🪙 ${Player.coins}`;
     if (shop)  shop.style.display = Player.shopUnlocked  ? 'inline-block' : 'none';
     if (quest) quest.style.display= Player.questsUnlocked? 'inline-block' : 'none';
-    const gb = document.getElementById('gameboy');
-    if (gb) gb.style.display = Player.gameboyUnlocked ? 'inline-block' : 'none';
+    const pom = document.getElementById('navPomodoro');
+    if (pom) pom.style.display = Player.pomodoroUnlocked ? 'inline-block' : 'none';
   },
 
   // ── Arena ─────────────────────────────────
@@ -423,6 +424,13 @@ export function openQuests() {
   UI.renderQuests();
   UI.showScreen('quests-screen', 'slide-left');
 }
+
+export function openPomodoro() {
+  if (!Player.pomodoroUnlocked) return;
+  Pomodoro.init();
+  UI.showScreen('pomodoro-screen', 'slide-left');
+}
+window.openPomodoro = openPomodoro;
 
 export function goToTitle() {
   UI.showTitleScreen();

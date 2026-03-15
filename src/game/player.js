@@ -145,8 +145,8 @@ export const Player = {
   get questsUnlocked() { return this.data.questsUnlocked; },
   set questsUnlocked(v) { this.data.questsUnlocked = v; this.save(); },
 
-  get gameboyUnlocked()   { return !!this.data.gameboyUnlocked; },
-  set gameboyUnlocked(v)  { this.data.gameboyUnlocked = v; this.save(); },
+  get pomodoroUnlocked() { return !!this.data.pomodoroUnlocked; },
+  set pomodoroUnlocked(v) { this.data.pomodoroUnlocked = v; this.save(); },
 
   get shopUnlocked() { return this.data.shopUnlocked; },
 

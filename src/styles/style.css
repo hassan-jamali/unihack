@@ -1206,6 +1206,243 @@ img.boss-icon { font-size: 0; }
 }
 
 /* ════════════════════════════════════════
+   POMODORO SCREEN
+   ════════════════════════════════════════ */
+#pomodoro-screen {
+  background: #081408;
+  overflow: hidden;
+}
+
+.pom-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  overflow-y: auto;
+  gap: 12px;
+  padding: 10px 16px 16px;
+}
+
+/* ── Mode tabs ── */
+.pom-mode-tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pom-mode-tab {
+  background: #0f1e0f;
+  border: 2px solid #1a3a1a;
+  color: #5a7a5a;
+  font-family: var(--font-pixel);
+  font-size: 5px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  transition: all 0.12s;
+}
+.pom-mode-tab:hover  { border-color: #3a6a3a; color: #8aca8a; }
+.pom-mode-tab.active { background: #1a3a1a; border-color: #4ade80; color: #4ade80; }
+
+/* ── Ring clock ── */
+.pom-clock-wrap {
+  position: relative;
+  width: min(260px, 58vw);
+  height: min(260px, 58vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+
+.pom-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pom-ring-bg {
+  fill: none;
+  stroke: #0f1e0f;
+  stroke-width: 10;
+}
+
+.pom-ring-fill {
+  fill: none;
+  stroke: #4ade80;
+  stroke-width: 10;
+  stroke-linecap: square;
+  stroke-dasharray: 528;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear, stroke 0.4s;
+}
+.pom-ring-fill.mode-break { stroke: #facc15; }
+.pom-ring-fill.mode-long  { stroke: #60a5fa; }
+.pom-ring-fill.mode-urgent{ stroke: var(--hp-red); }
+
+.pom-clock-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.pom-timer-display {
+  font-size: clamp(14px, 4vw, 22px);
+  color: var(--text-white);
+  letter-spacing: 3px;
+  font-family: var(--font-pixel);
+}
+
+.pom-timer-display.urgent { color: var(--hp-red); animation: pulse 0.8s infinite; }
+
+.pom-session-label {
+  font-size: 5px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+/* ── Controls ── */
+.pom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pom-ctrl-btn {
+  background: #0f1e0f;
+  border: 2px solid #1a3a1a;
+  color: var(--text-dim);
+  font-family: var(--font-pixel);
+  font-size: 5px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  transition: all 0.12s;
+}
+.pom-ctrl-btn:hover { border-color: #3a6a3a; color: var(--text-white); }
+
+.pom-play-btn {
+  background: #1a5a2a;
+  border-color: #4ade80;
+  color: #4ade80;
+  font-size: 6px;
+  padding: 10px 20px;
+  border-bottom: 3px solid #0a3a18;
+  transition: transform 0.1s, border-bottom 0.1s;
+}
+.pom-play-btn:hover  { background: #226e34; transform: translateY(1px); border-bottom-width: 2px; }
+.pom-play-btn:active { transform: translateY(3px); border-bottom-width: 0; }
+.pom-play-btn.running { border-color: var(--hp-red); color: var(--hp-red); background: #3a0a0a; border-bottom-color: #1a0505; }
+
+/* ── Session dots ── */
+.pom-session-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.pom-session-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.pom-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #0f1e0f;
+  border: 2px solid #1a3a1a;
+  transition: all 0.3s;
+}
+.pom-dot.done    { background: #4ade80; border-color: #4ade80; }
+.pom-dot.current { background: #1a5a2a; border-color: #4ade80; animation: pulse 1s infinite; }
+
+.pom-session-info {
+  font-size: 5px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* ── Settings ── */
+.pom-settings {
+  width: 100%;
+  max-width: 320px;
+  background: #0d1a0d;
+  border: 2px solid #1a3a1a;
+  border-radius: 5px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pom-settings-header {
+  font-size: 5px;
+  color: var(--editor-label);
+  letter-spacing: 2px;
+  margin-bottom: 2px;
+}
+
+.pom-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pom-settings-label {
+  font-size: 5px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.pom-settings-input {
+  width: 56px;
+  background: #050f05;
+  border: 2px solid #1a3a1a;
+  border-radius: 3px;
+  color: #aaceba;
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  padding: 5px 7px;
+  outline: none;
+  transition: border-color 0.12s;
+  text-align: center;
+}
+.pom-settings-input:focus { border-color: #4a8a4a; }
+
+.pom-settings-apply {
+  background: #1a3a1a;
+  border: 2px solid #3a6a3a;
+  color: #4ade80;
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  align-self: flex-start;
+  letter-spacing: 1px;
+  transition: all 0.12s;
+  border-bottom: 2px solid #0a2a0a;
+}
+.pom-settings-apply:hover { background: #1f4a1f; border-color: #4ade80; }
+
+.pom-settings-status {
+  font-size: 5px;
+  min-height: 12px;
+  color: var(--hp-green);
+}
+.pom-settings-status.error { color: var(--hp-red); }
+
+/* ════════════════════════════════════════
    QUESTION EDITOR SCREEN (.ed-* classes)
    ════════════════════════════════════════ */
 #editor-screen {
