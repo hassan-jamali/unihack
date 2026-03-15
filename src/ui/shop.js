@@ -102,16 +102,6 @@ export const Shop = {
       price: 150,
       effect: { unlockQuests: true },
       rarity: 'epic',
-    },
-    {
-      id: 'gameboy_mode',
-      name: 'Game Boy Mode',
-      desc: 'Unlocks the retro Game Boy shell',
-      icon: '🎮',
-      category: 'unlock',
-      price: 300,
-      effect: { unlockGameboy: true },
-      rarity: 'epic',
     }
   ],
 
@@ -129,15 +119,11 @@ export const Shop = {
     if (item.effect?.unlockQuests) {
       Player.questsUnlocked = true;
     }
-    
+
     if (item.effect?.unlockPomodoro) {
       Player.pomodoroUnlocked = true;
     }
 
-    // Add:
-    if (item.effect?.unlockGameboy) {
-      Player.gameboyUnlocked = true;
-    }
     return { ok: true, msg: `Bought ${item.name}!` };
   },
 
