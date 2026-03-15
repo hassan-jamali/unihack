@@ -43,7 +43,7 @@ const PRESET_BOSSES = [
     maxHp:     110,
     dmgDealt:  18,
     dmgTaken:  22,
-    emoji:     '',
+    image:     'https://cdn.discordapp.com/attachments/1481220361814020106/1482578843855229140/New_Piskel_2.png?ex=69b776a5&is=69b62525&hm=2b5e0a007a6a27d4dad036f6ef5ea399cb07858f2043fff81ea52f727f115e44',
     typeColor: '#f87171',
     typeBg:    'rgba(248,113,113,0.25)',
     intro:     'General Napoleon comes in!\nHow well do you know history?',

@@ -35,7 +35,6 @@ export function triggerAnim(el, cls, duration) {
    cheat.level(5)       — set level directly
    cheat.unlockShop()   — unlock the shop now
    cheat.unlockQuests() — unlock quests now
-   cheat.unlockGameboy()— unlock gameboy now
    cheat.reset()        — wipe all player data
    ════════════════════════════════════════ */
 export const cheat = {
@@ -62,12 +61,6 @@ export const cheat = {
     _Player.save();
     _UI.updateHUD();
     console.log('Shop unlocked!');
-  },
-  unlockGameboy() {
-    _Player.data.gameboyUnlocked = true;
-    _Player.save();
-    _UI.updateHUD();
-    console.log('Game Boy mode unlocked!');
   },
   unlockQuests() {
     _Player.data.questsUnlocked = true;
