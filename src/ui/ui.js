@@ -115,16 +115,15 @@ export const UI = {
     const el = document.getElementById('bossSprite');
     el.style.opacity   = '1';
     el.style.transform = '';
+    
+    // Store flag for animation system to check
+    el.dataset.useStaticIcon = boss.useStaticIcon || 'false';
+    
     if (boss.image) {
-      // Only set image if element is empty (no animation running)
-      if (!el.innerHTML || el.innerHTML.trim() === '') {
-        el.innerHTML = `<img src="${boss.image}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.6))">`;
-      }
+      // Always set the boss image (static icon)
+      el.innerHTML = `<img src="${boss.image}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.6))">`;
     } else {
-      // Don't clear if animation system is running
-      if (!el.innerHTML || el.innerHTML.trim() === '') {
-        el.innerHTML = ''; // Only set empty if already empty
-      }
+      el.innerHTML = '';
     }
     return el;
   },
@@ -302,7 +301,7 @@ export const UI = {
     });
 
     const allCard = document.createElement('div');
-    allCard.className = 'boss-card boss-card-all selected';
+    allCard.className = 'boss-card boss-card-all';  // Remove 'selected' class
     allCard.dataset.index = 'all';
     allCard.innerHTML = `
       <span class="boss-icon">⚡</span>
@@ -314,7 +313,7 @@ export const UI = {
     allCard.addEventListener('click', () => this._selectBoss(allCard, 'all'));
     container.appendChild(allCard);
 
-    document.getElementById('selectedBossIndex').value = 'all';
+    document.getElementById('selectedBossIndex').value = '';  // Don't auto-select any boss
   },
 
   _selectBoss(card, index) {

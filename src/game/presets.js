@@ -19,6 +19,7 @@ const PRESET_BOSSES = [
     intro:     'Terence appears!\nTest your mathematical mind!',
     defeat:    "Numbers don't lie!\nTerence fainted!",
     preset:    true,
+    useStaticIcon: true,  // Terence uses static icon instead of animations
   },
   {
     id:        'preset_science',
@@ -49,6 +50,22 @@ const PRESET_BOSSES = [
     intro:     'General Napoleon comes in!\nHow well do you know history?',
     defeat:    'Lost to the English!\nGeneral Napoleon fainted!',
     preset:    true,
+  },
+  {
+    id:        'preset_biology',
+    name:      'Dr. Cell',
+    type:      'BIOLOGY',
+    difficulty:'hard',
+    maxHp:     150,
+    dmgDealt:  25,
+    dmgTaken:  15,
+    image:     'https://media.discordapp.net/attachments/1425681723949191219/1482616470792966144/ezgif-7cf98e6cb6b65d5e.gif?ex=69b799b0&is=69b64830&hm=820e36f01a07f6ec3b880c3d0a3ef670da66d624429e5a44ea044250d57b2349&=',
+    typeColor: '#10b981',
+    typeBg:    'rgba(16,185,129,0.25)',
+    intro:     'Dr. Cell enters the laboratory!\nTest your knowledge of life sciences!',
+    defeat:    'Cell division complete!\nDr. Cell has been defeated!',
+    preset:    true,
+    useStaticIcon: false,  // Will use animated sprites
   },
 ];
 
