@@ -7,6 +7,7 @@
  * Provides randomized SFX for various combat animations
  */
 import { playBossAttackSFX, playBossIdleSFX, playPlayerAttackSFX, playSound } from './sound-effects.js';
+import { triggerAnim } from '../core/utils.js';
 
 // Make sound functions globally available
 window.playBossAttackSFX = playBossAttackSFX;
@@ -365,23 +366,122 @@ window.playSpriteAnimation = playSpriteAnimation;
  * Initialize boss idle animation
  */
 function initBossIdleAnimation() {
-  changeAnimation('bossSprite', bossIdleSpriteUrl, 4, 81, 71, 120, false, 2, false);
-  // Flip boss sprite to face player with multiple retries
-  setTimeout(() => {
-    flipBossSprite();
-  }, 50);
+  const bossElement = document.getElementById('bossSprite');
+  
+  // Check if boss data is available before proceeding
+  const checkBossDataAndStartAnimation = () => {
+    if (!bossElement) {
+      return;
+    }
+    
+    // If boss element is empty or doesn't have the static icon flag set, wait longer
+    if (!bossElement.innerHTML || bossElement.innerHTML.trim() === '') {
+      setTimeout(checkBossDataAndStartAnimation, 100);
+      return;
+    }
+    
+    // Check if boss should use static icon instead of animation
+    if (bossElement.dataset.useStaticIcon === 'true') {
+      // Boss uses static icon, don't start animation
+      
+      // Still flip the sprite to face player
+      setTimeout(() => {
+        flipBossSprite();
+      }, 50);
+      
+      // Play idle sound if available
+      setTimeout(() => {
+        playBossIdleSFX();
+      }, 100);
+      
+      return;
+    }
+    
+    // Boss uses animated sprite, start animation
+    changeAnimation('bossSprite', bossIdleSpriteUrl, 4, 81, 71, 120, false, 2, false);
+    
+    // Flip boss sprite to face player with multiple retries
+    setTimeout(() => {
+      flipBossSprite();
+    }, 50);
+    
+    // if 100ms passed, reproduce playBossIdleSFX() 
+    setTimeout(() => {
+      playBossIdleSFX();
+    }, 100);
+  };
+  
+  // Start checking after a short delay
+  setTimeout(checkBossDataAndStartAnimation, 100);
+}
 
-  // if 100ms passed, reproduce playBossIdleSFX() 
-  setTimeout(() => {
-    playBossIdleSFX();
-  }, 100);
+/**
+ * Initialize Dr. Cell specific looping animation
+ * This function creates a continuous loop for Dr. Cell's biology-themed animation
+ */
+function initDrCellLoopAnimation() {
+  const bossElement = document.getElementById('bossSprite');
+  
+  // Dr. Cell specific sprite URL
+  const drCellSpriteUrl = 'https://cdn.discordapp.com/attachments/1481220361814020106/1482580748778745866/dr_cell_idle.png?ex=69b777f2&is=69b62672&hm=7f8e9c2b3a5d6e7f8e9c2b3a5d6e7f8e9c2b3a5d6e7f8e9c2b3a5d6e7f8e9c2b';
+  
+  // Check if boss data is available before proceeding
+  const checkBossDataAndStartLoopAnimation = () => {
+    if (!bossElement) {
+      return;
+    }
+    
+    // If boss element is empty, wait longer
+    if (!bossElement.innerHTML || bossElement.innerHTML.trim() === '') {
+      setTimeout(checkBossDataAndStartLoopAnimation, 100);
+      return;
+    }
+    
+    // Check if this is Dr. Cell (BIOLOGY type)
+    const currentBoss = State?.currentBoss;
+    if (!currentBoss || currentBoss.type !== 'BIOLOGY') {
+      // Not Dr. Cell, use normal animation
+      changeAnimation('bossSprite', bossIdleSpriteUrl, 4, 81, 71, 120, false, 2, false);
+    } else {
+      // This is Dr. Cell, use specific looping animation
+      // Frame count: 6, Frame size: 96x96, Duration: 150ms per frame, Loop infinitely
+      changeAnimation('bossSprite', drCellSpriteUrl, 6, 96, 96, 150, false, 1, false);
+    }
+    
+    // Flip boss sprite to face player
+    setTimeout(() => {
+      flipBossSprite();
+    }, 50);
+    
+    // Play idle sound if available
+    setTimeout(() => {
+      playBossIdleSFX();
+    }, 100);
+  };
+  
+  // Start checking after a short delay
+  setTimeout(checkBossDataAndStartLoopAnimation, 100);
 }
 
 /**
  * Play boss attack animation
  */
 function playBossAttackAnimation() {
+  const bossElement = document.getElementById('bossSprite');
+  
+  // Check if boss should use static icon instead of animation
+  if (bossElement && bossElement.dataset.useStaticIcon === 'true') {
+    // Boss uses static icon, just play projectile animation
+    console.log('Boss uses static icon, skipping attack animation');
+    setTimeout(() => {
+      playBossProjectileAnimation();
+    }, 200);
+    return;
+  }
+  
+  // Boss uses animated sprite
   changeAnimation('bossSprite', bossAttackSpriteUrl, 8, 81, 71, 100, true, 2, false);
+  
   // Play projectile animation after attack starts
   setTimeout(() => {
     playBossProjectileAnimation();
@@ -392,6 +492,17 @@ function playBossAttackAnimation() {
  * Play boss hurt animation
  */
 function playBossHurtAnimation() {
+  const bossElement = document.getElementById('bossSprite');
+  
+  // Check if boss should use static icon instead of animation
+  if (bossElement && bossElement.dataset.useStaticIcon === 'true') {
+    // Boss uses static icon, just shake it
+    console.log('Boss uses static icon, skipping hurt animation');
+    triggerAnim(bossElement, 'anim-boss-hit', 500);
+    return;
+  }
+  
+  // Boss uses animated sprite
   changeAnimation('bossSprite', bossHitSpriteUrl, 4, 81, 71, 150, true, 2, false);
 }
 
@@ -399,6 +510,18 @@ function playBossHurtAnimation() {
  * Play boss death animation
  */
 function playBossDeathAnimation() {
+  const bossElement = document.getElementById('bossSprite');
+  
+  // Check if boss should use static icon instead of animation
+  if (bossElement && bossElement.dataset.useStaticIcon === 'true') {
+    // Boss uses static icon, just fade out
+    console.log('Boss uses static icon, skipping death animation');
+    bossElement.style.transition = 'opacity 0.5s';
+    bossElement.style.opacity = '0.3';
+    return;
+  }
+  
+  // Boss uses animated sprite
   changeAnimation('bossSprite', bossDieSpriteUrl, 7, 81, 71, 120, true, 2, false);
 }
 
@@ -484,6 +607,12 @@ function playBossProjectileAnimation() {
 function flipBossSprite() {
   const bossElement = document.getElementById('bossSprite');
   if (bossElement) {
+    // Check if boss should use static icon - don't flip static icons
+    if (bossElement.dataset.useStaticIcon === 'true') {
+      console.log('Boss uses static icon, skipping flip');
+      return;
+    }
+    
     bossElement.style.transform = 'scaleX(-1)';
     
     // Ensure flip is applied by checking and retrying
@@ -539,6 +668,7 @@ function playRedHitEffect(x, y) {
 // Make hit effect function globally available
 // Make boss animation functions globally available
 window.initBossIdleAnimation = initBossIdleAnimation;
+window.initDrCellLoopAnimation = initDrCellLoopAnimation;
 window.playBossAttackAnimation = playBossAttackAnimation;
 window.playBossHurtAnimation = playBossHurtAnimation;
 window.playBossDeathAnimation = playBossDeathAnimation;
