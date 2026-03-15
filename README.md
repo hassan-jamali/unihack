@@ -1,4 +1,4 @@
-# Brain Battle — Answer · Attack · Advance
+# Brain Battle
 
 A retro-styled study RPG where every correct answer turns into an attack.
 
