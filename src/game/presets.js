@@ -35,6 +35,7 @@ const PRESET_BOSSES = [
     intro:     'Dr. Proton enters the lab!\nHow well do you know science?',
     defeat:    'Hypothesis disproved!\nDr. Proton fainted!',
     preset:    true,
+    useStaticIcon: false,  // Explicitly use animated sprites
   },
   {
     id:        'preset_history',
@@ -50,6 +51,7 @@ const PRESET_BOSSES = [
     intro:     'General Napoleon comes in!\nHow well do you know history?',
     defeat:    'Lost to the English!\nGeneral Napoleon fainted!',
     preset:    true,
+    useStaticIcon: false,  // Explicitly use animated sprites
   },
   {
     id:        'preset_biology',
